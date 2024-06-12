@@ -1,0 +1,117 @@
+doctype html
+html.page(lang='ru')
+	head
+		meta(charset='utf-8')
+		meta(name='viewport', content='width=device-width, initial-scale=1')
+		title= title
+		link(rel='stylesheet', href='/vendor/sanitize.css')
+		link(rel='stylesheet', href='/css/style.css')
+		style.
+			body {
+				display: flex;
+				flex-direction: column;
+			}
+			main {
+				flex-grow: 1;
+			}
+			.center-content {
+				display: flex;
+				place-content: center;
+				place-items: center;
+			}
+			.form {
+				--box-shadow-color: hsl(0, 0%, 83%);
+				border: 1px solid hsl(0, 0%, 83%);
+				box-shadow: 0 1em 1.5em 0 var(--box-shadow-color);
+			}
+			.form-control {
+				padding: 0.2em;
+			}
+			.form-control_title {
+				margin-right: 0.5ch;
+			}
+
+			.form-panel {
+				padding: 0.5em;
+			}
+			.form-panel:not(:first-child) {
+				border-top: 1px solid lightgrey;
+			}
+
+			.form--invalid {
+				border-color: hsl(0, 100%, 83%);
+				--box-shadow-color: hsl(0, 100%, 83%);
+				animation: shake 0.5s linear;
+			}
+
+			@keyframes shake {
+				8%,
+				41% {
+					transform: translateX(-10px);
+				}
+				25%,
+				58% {
+					transform: translateX(10px);
+				}
+				75% {
+					transform: translateX(-5px);
+				}
+				92% {
+					transform: translateX(5px);
+				}
+				0%,
+				100% {
+					transform: translateX(0);
+				}
+			}
+
+	body.page__body
+		main.center-content
+			form.form.form--login(name='form', method='post')
+				if message
+					.form-panel
+						.form-message= message
+				.form-panel
+					.form-control
+						label
+							span.form-control_title username
+							input.form__input(type='text', name='username', value='user')
+					.form-control
+						label
+							span.form-control_title password
+							input.form__input(type='password', name='password', value='password')
+				.form-panel.message(hidden) ERROR
+				.form-panel 
+					button(type='submit') Отправить
+
+			script.
+				const form = document.querySelector('.form.form--login');
+				form.addEventListener('submit', async (event) => {
+					event.preventDefault();
+					const form = event.target;
+
+					const res = await fetch(window.location.href, {
+						method: 'POST',
+						headers: {
+							'X-Requested-With': 'XMLHttpRequest',
+							'Content-Type': 'application/x-www-form-urlencoded',
+						},
+						body: new URLSearchParams(new FormData(form)),
+					});
+
+					if (res.ok) return window.location.assign('/');
+
+					form.classList.add('form--invalid');
+
+					const msg = document.querySelector('.message');
+					msg.setAttribute('hidden', true);
+
+					if (res.status !== 403) {
+						msg.removeAttribute('hidden');
+						const txt = await res.text();
+						msg.innerHTML = `<p>${res.status} ${res.statusText}</p><p>${txt}</p>`;
+						return;	
+					}
+
+					setTimeout(() => form.classList.remove('form--invalid'), 500);
+				});

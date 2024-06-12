@@ -1,0 +1,52 @@
+{
+  "name": "inventory",
+  "version": "0.1.0",
+  "private": true,
+  "scripts": {
+    "start": "node ./server/bin/www",
+    "dev-server": "nodemon ./server/bin/www",
+    "dev-front": "gulp watch",
+    "dev-concurrently": "concurrently --kill-others \"npm run dev-front\" \"npm run dev-server\"",
+    "dev": "cross-env-shell NODE_ENV=development \"npm run build && npm run dev-concurrently\"",
+    "build": "gulp build",
+    "lint:js": "eslint .",
+    "lint:pug": "pug-lint .",
+    "lint:style": "stylelint front-src/less/**/*.less"
+  },
+  "optionalDependencies": {
+    "fsevents": "^2.3.3"
+  },
+  "devDependencies": {
+    "@hyrious/esbuild-plugin-commonjs": "^0.2.4",
+    "autoprefixer": "^10.4.19",
+    "concurrently": "^8.2.2",
+    "connect-livereload": "^0.6.1",
+    "cross-env": "^7.0.3",
+    "cssnano": "^7.0.2",
+    "dotenv": "^16.4.5",
+    "gulp": "^5.0.0",
+    "gulp-esbuild": "^0.12.0",
+    "gulp-html-minifier-terser": "^7.1.0",
+    "gulp-less": "^5.0.0",
+    "gulp-plumber": "^1.2.1",
+    "gulp-postcss": "^10.0.0",
+    "gulp-pug": "^5.0.0",
+    "gulp-rename": "^2.0.0",
+    "livereload": "^0.9.3",
+    "nodemon": "^3.1.3",
+    "svelte": "^4.2.18"
+  },
+  "dependencies": {
+    "busboy": "^1.6.0",
+    "cookie-parser": "^1.4.6",
+    "express": "^4.19.2",
+    "express-session": "^1.18.0",
+    "fast-xml-parser": "^4.4.0",
+    "http-errors": "^2.0.0",
+    "morgan": "^1.10.0",
+    "passport": "^0.7.0",
+    "passport-local": "^1.0.0",
+    "response-time": "^2.3.2",
+    "session-file-store": "^1.5.0"
+  }
+}

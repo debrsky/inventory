@@ -1,0 +1,19 @@
+doctype html
+html.page(lang="ru")
+	head
+		meta(charset="utf-8")
+		meta(name="viewport", content="width=device-width, initial-scale=1")
+		title= title
+		link(rel="icon", href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🗂️</text></svg>")
+		link(rel="stylesheet", href="/vendor/sanitize.css")
+		link(rel="stylesheet", href="/css/style.css")
+	body.page__body
+		header(
+			style="display: flex; place-content: center; place-items: center; height: 3em; background-color: silver"
+		) 
+			a(href="/inventory") ИНВЕНТАРИЗАЦИЯ
+		block content
+
+		footer(
+			style="display: flex; place-content: center; place-items: center; height: 3em; background-color: silver"
+		) 

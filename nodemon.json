@@ -1,0 +1,8 @@
+{
+  "verbose": false,
+  "ignore": ["public/**/*", "node_modules"],
+  "watch": [
+    "server", ".env", "server/bin/www"
+  ],
+  "ext": "js,json,pug"
+}

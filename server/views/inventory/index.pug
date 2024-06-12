@@ -1,0 +1,29 @@
+extends ./layout
+
+block content
+	h1= title
+
+	pre= content
+
+	table.items-list
+		thead
+			tr 
+				th id
+				th type
+				th brand
+				th model
+				th place
+		tbody
+			each item in items 
+				tr
+					td(style="word-break: normal")
+						a(href=`${baseUrl}/items/${item.id}`)= item.id
+					td= item.type
+					td= item.brand
+					td= item.model
+					td= item.place
+
+	form(action='', method='POST')
+		button Добавить id
+	footer
+		a(href="/logout", style="text-underline-offset: 1px") Выход

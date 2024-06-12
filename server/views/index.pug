@@ -1,0 +1,15 @@
+extends layout
+
+block content
+	h1= title
+	p Welcome, #[em= user ? user.name : "<nouser>"], to the excellent #{ title }
+	p: q Это внешние кавычки #[q а это внутренние] внешние продолжаются
+	article 
+		h2 Sessions
+		p Counter: #{ counter }
+
+	article(style="display: flex; place-content: center; font-size: 16pt")
+		p Инвентаризация тут: #[a(href="inventory") Инвентаризация].
+
+	footer
+		a(href="/logout", style="text-underline-offset: 1px") Выход
