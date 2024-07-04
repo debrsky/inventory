@@ -1,6 +1,8 @@
 const config = require('../../../config.js');
 const fs = require('fs');
 const path = require('path');
+const os = require('os');
+const crypto = require('crypto');
 
 const DB_DIR = config.dbDir;
 const CACHE_DIR = path.join(DB_DIR, 'CACHE');
@@ -133,8 +135,13 @@ router.post('/items/:id', async function (req, res, next) {
 		const { filename, encoding, mimeType } = info;
 
 		if (name === "file" && filename) {
+			const tempdir = os.tmpdir();
+			const tempfname = crypto.randomUUID();
 			const pathToFile = path.join(DB_DIR, id, filename);
-			const ws = fs.createWriteStream(pathToFile);
+			const pathToTempFile = path.join(tempdir, tempfname);
+			const ws = fs.createWriteStream(pathToTempFile).on('finish', () => {
+				fs.rename(pathToTempFile, pathToFile, (err) => { if (err) console.error(err) });
+			});
 			file.pipe(ws);
 		} else {
 			file.on('data', () => { }); // no file
