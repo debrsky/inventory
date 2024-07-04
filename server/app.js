@@ -22,7 +22,7 @@ if (process.env.NODE_ENV === 'development') {
 	const connectLivereload = require('connect-livereload');
 	const ignore = [/\.js(\?.*)?$/, /\.css(\?.*)?$/, /\.svg(\?.*)?$/, /\.ico(\?.*)?$/,
 		/\.woff(\?.*)?$/, /\.png(\?.*)?$/, /\.jpg(\?.*)?$/, /\.jpeg(\?.*)?$/, /\.gif(\?.*)?$/, /\.pdf(\?.*)?$/,
-		/\.json(\?.*)?$/, /\.webp(\?.*)?$/, /\.avif(\?.*)?$/
+		/\.json(\?.*)?$/, /\.webp(\?.*)?$/, /\.avif(\?.*)?$/, /\.mp4(\?.*)?$/
 	];
 	app.use(connectLivereload({ ignore }));
 }
