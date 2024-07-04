@@ -3,7 +3,14 @@ extends ./layout
 block content
 	h1= title
 
-	pre= content
+	ul.breadcrumbs
+		li.breadcrumbs__item
+			a.breadcrumbs__link(href="#") Всё
+		li.breadcrumbs__item
+			a.breadcrumbs__link(href="#") Кабинеты
+		li.breadcrumbs__item
+			a.breadcrumbs__link(href="#") 402
+
 
 	table.items-list
 		thead

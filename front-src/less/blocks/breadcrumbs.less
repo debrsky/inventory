@@ -1,0 +1,14 @@
+.breadcrumbs {
+	display: flex;
+}
+
+.breadcrumbs__item {
+	display: block;
+	padding: 0;
+	margin: 0;
+}
+
+.breadcrumbs__item:not(:first-of-type)::before {
+	content: "/";
+	padding: 0 1ch;
+}
