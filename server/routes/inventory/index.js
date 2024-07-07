@@ -136,7 +136,7 @@ router.post('/items/:id', async function (req, res, next) {
 	bb.on('close', async () => {
 		if (filesToRemove.length > 0) {
 			try {
-				for (filename of filesToRemove) {
+				for (const filename of filesToRemove) {
 					const pathToFile = path.join(ITEMS_DIR, id, filename);
 					await fs.promises.unlink(pathToFile);
 				}
@@ -181,11 +181,11 @@ router.get('/items/:id/:file', async function (req, res, next) {
 		fileStat = await fs.promises.stat(pathToFile);
 	}
 	catch (err) {
-		if (err === 'ENOENT') return next();
+		if (err.code === 'ENOENT') return next();
 		return next(err);
 	}
 
-	const ext = path.extname(file).slice(1).toLowerCase();
+	// const ext = path.extname(file).slice(1).toLowerCase();
 
 	// const stream = fs.createReadStream(pathToFile)
 	// 	.on('error', (err) => {
@@ -230,7 +230,7 @@ router.get('/items/:id/preview/:file', async function (req, res, next) {
 			return next();
 		}
 
-		fs.promises.mkdir(dir, { recursive: true })
+		await fs.promises.mkdir(dir, { recursive: true })
 		try {
 			await resize(pathToOriginalFile, pathToFile);
 		} catch (err) {
