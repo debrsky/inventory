@@ -61,15 +61,9 @@ router.get(['/items/:id', '/items/:id/edit'], async function (req, res, next) {
 
 	const mode = req.url.endsWith('/edit') ? 'edit' : 'view';
 
-	const item = { id };
-
-	Object.assign(item, {
-		"type": "",
-		"brand": "",
-		"model": "",
-		"place": "",
-		"comment": ""
-	});
+	const item = {
+		id, type: "", brand: "", model: "", place: "", comment: ""
+	};
 
 	try {
 		const files = (await fs.promises.readdir(path.join(DB_DIR, id), { withFileTypes: true }))
