@@ -236,24 +236,21 @@ router.get('/items/:id/preview/:file', async function (req, res, next) {
 		} catch (err) {
 			return next(err);
 		}
-
 	}
 
-	const ext = path.extname(file).slice(1).toLowerCase();
-
-	const stream = fs.createReadStream(pathToFile)
+	const stream = send(req, pathToFile)
 		.on('error', (err) => {
 			if (err.code === 'ENOENT') return next();
 			return next(err);
+		}).on('headers', (res, path, stat) => {
+			if (/Report.htm$/.test(path)) {
+				res.setHeader('Content-Type', 'text/html; charset=Windows-1251')
+			};
 		});
 
-	res.type(ext);
-	if (ext === 'avif') res.set({ 'Content-Type': 'image/avif' });
 	stream.pipe(res);
 
-	res.on('close', () => { stream.destroy() });
+	// res.on('close', () => { stream.destroy() });
 });
-
-
 
 module.exports = router;
