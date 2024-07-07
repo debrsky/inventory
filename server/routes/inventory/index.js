@@ -12,7 +12,6 @@ const REPORT_FILE = 'Report.xml';
 const ID_SCHEMA = /^\d\d\d\d$/;
 
 const iconv = require('iconv-lite');
-const { XMLParser } = require("fast-xml-parser");
 const busboy = require('busboy');
 
 const express = require('express');
@@ -52,35 +51,6 @@ router.post('/', async function (req, res, next) {
 		await fs.promises.mkdir(path.join(DB_DIR, newId));
 		res.redirect(req.originalUrl);
 	} catch (err) {
-		return next(err);
-	}
-});
-
-router.get('/items/:id/report', async function (req, res, next) {
-	const id = req.params.id;
-	if (!ID_SCHEMA.test(id)) return next();
-
-	const page = req.query.page;
-
-	try {
-		const reportPath = path.join(DB_DIR, id, REPORT_FILE);
-		try {
-			const XMLdata = iconv.decode(await fs.promises.readFile(reportPath), 'win1251');
-			const parser = new XMLParser();
-			const report = parser.parse(XMLdata);
-
-			const pages = report.Report.Page.map(page => `${page.MenuTitle}|${page.Title}`);
-
-			if (page && !pages.includes(page)) return next();
-
-			res.json(report);
-
-		} catch (err) {
-			if (err.code !== 'ENOENT') throw Error(err);
-		}
-
-	} catch (err) {
-		if (err.code === 'ENOENT') return next();
 		return next(err);
 	}
 });
