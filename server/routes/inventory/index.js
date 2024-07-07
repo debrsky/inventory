@@ -4,6 +4,11 @@ const path = require('path');
 const os = require('os');
 const crypto = require('crypto');
 
+const send = require('send');
+send.mime.define({
+	'image/avif': ['avif']
+});
+
 const DB_DIR = config.dbDir;
 const CACHE_DIR = path.join(DB_DIR, 'CACHE');
 const ITEMS_DIR = path.join(DB_DIR, 'ITEMS');
@@ -182,26 +187,24 @@ router.get('/items/:id/:file', async function (req, res, next) {
 
 	const ext = path.extname(file).slice(1).toLowerCase();
 
-	const stream = fs.createReadStream(pathToFile)
+	// const stream = fs.createReadStream(pathToFile)
+	// 	.on('error', (err) => {
+	// 		if (err.code === 'ENOENT') return next();
+	// 		return next(err);
+	// 	});
+	const stream = send(req, pathToFile)
 		.on('error', (err) => {
 			if (err.code === 'ENOENT') return next();
 			return next(err);
+		}).on('headers', (res, path, stat) => {
+			if (/Report.htm$/.test(path)) {
+				res.setHeader('Content-Type', 'text/html; charset=Windows-1251')
+			};
 		});
 
-	const converterStream = iconv.decodeStream('win1251');
+	stream.pipe(res);
 
-	res.type(ext);
-	if (['ini', 'htm', 'txt'].includes(ext)) {
-		stream.pipe(converterStream).pipe(res);
-	} else if (ext === 'xml') {
-		stream.pipe(res);
-	} else {
-		res.set({ 'Content-Length': fileStat.size });
-		if (ext === 'avif') res.set({ 'Content-Type': 'image/avif' });
-		stream.pipe(res);
-	}
-
-	res.on('close', () => { stream.destroy(); converterStream?.destroy() });
+	// res.on('close', () => { stream.destroy(); converterStream?.destroy() });
 });
 
 router.get('/items/:id/preview/:file', async function (req, res, next) {
