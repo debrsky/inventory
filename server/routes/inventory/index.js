@@ -6,6 +6,7 @@ const crypto = require('crypto');
 
 const DB_DIR = config.dbDir;
 const CACHE_DIR = path.join(DB_DIR, 'CACHE');
+const ITEMS_DIR = path.join(DB_DIR, 'ITEMS');
 const INFO_FILE = 'info.json';
 const REPORT_FILE = 'Report.xml';
 
@@ -21,12 +22,12 @@ const resize = require('../../lib/utils/ffmpeg.js');
 
 router.get('/', async function (req, res, next) {
 	try {
-		const ids = (await fs.promises.readdir(DB_DIR, { withFileTypes: true }))
+		const ids = (await fs.promises.readdir(ITEMS_DIR, { withFileTypes: true }))
 			.filter(file => file.isDirectory() && ID_SCHEMA.test(file.name))
 			.map(el => el.name);
 
 		const items = (await Promise.allSettled(
-			ids.map(id => fs.promises.readFile(path.join(DB_DIR, id, INFO_FILE), 'utf8')))
+			ids.map(id => fs.promises.readFile(path.join(ITEMS_DIR, id, INFO_FILE), 'utf8')))
 		).map((res, idx) => {
 			if (res.status === "rejected" && res.reason.code !== "ENOENT") throw Error(res.reason.code);
 			if (res.status === "rejected") return { id: ids[idx] };
@@ -43,12 +44,12 @@ router.get('/', async function (req, res, next) {
 
 router.post('/', async function (req, res, next) {
 	try {
-		const ids = (await fs.promises.readdir(DB_DIR, { withFileTypes: true }))
+		const ids = (await fs.promises.readdir(ITEMS_DIR, { withFileTypes: true }))
 			.filter(file => file.isDirectory() && ID_SCHEMA.test(file.name))
 			.map(el => Number(el.name))
 			.sort((a, b) => a - b);
 		const newId = ((ids.at(-1)) + 1).toString();
-		await fs.promises.mkdir(path.join(DB_DIR, newId));
+		await fs.promises.mkdir(path.join(ITEMS_DIR, newId));
 		res.redirect(req.originalUrl);
 	} catch (err) {
 		return next(err);
@@ -66,11 +67,11 @@ router.get(['/items/:id', '/items/:id/edit'], async function (req, res, next) {
 	};
 
 	try {
-		const files = (await fs.promises.readdir(path.join(DB_DIR, id), { withFileTypes: true }))
+		const files = (await fs.promises.readdir(path.join(ITEMS_DIR, id), { withFileTypes: true }))
 			.filter(file => !file.isDirectory())
 			.map(el => el.name);
 
-		const infoPath = path.join(DB_DIR, id, INFO_FILE);
+		const infoPath = path.join(ITEMS_DIR, id, INFO_FILE);
 		try {
 			const info = JSON.parse(await fs.promises.readFile(infoPath, 'utf8'));
 			Object.assign(item, info);
@@ -101,7 +102,7 @@ router.post('/items/:id', async function (req, res, next) {
 		if (name === "file" && filename) {
 			const tempdir = os.tmpdir();
 			const tempfname = crypto.randomUUID();
-			const pathToFile = path.join(DB_DIR, id, filename);
+			const pathToFile = path.join(ITEMS_DIR, id, filename);
 			const pathToTempFile = path.join(tempdir, tempfname);
 			const ws = fs.createWriteStream(pathToTempFile).on('finish', () => {
 				fs.rename(pathToTempFile, pathToFile, (err) => { if (err) console.error(err) });
@@ -131,7 +132,7 @@ router.post('/items/:id', async function (req, res, next) {
 		if (filesToRemove.length > 0) {
 			try {
 				for (filename of filesToRemove) {
-					const pathToFile = path.join(DB_DIR, id, filename);
+					const pathToFile = path.join(ITEMS_DIR, id, filename);
 					await fs.promises.unlink(pathToFile);
 				}
 			} catch (err) {
@@ -139,7 +140,7 @@ router.post('/items/:id', async function (req, res, next) {
 			}
 		}
 
-		const infoPath = path.join(DB_DIR, id, INFO_FILE);
+		const infoPath = path.join(ITEMS_DIR, id, INFO_FILE);
 
 		try {
 			await fs.promises.writeFile(infoPath, JSON.stringify(data, null, 4));
@@ -162,15 +163,13 @@ router.post('/items/:id', async function (req, res, next) {
 	req.pipe(bb);
 });
 
-
-
 router.get('/items/:id/:file', async function (req, res, next) {
 	const id = req.params.id;
 	if (!ID_SCHEMA.test(id)) return next();
 
 	const file = req.params.file;
 
-	const pathToFile = path.resolve(path.join(DB_DIR, id, file)).replace(/\\/g, '/');
+	const pathToFile = path.resolve(path.join(ITEMS_DIR, id, file)).replace(/\\/g, '/');
 
 	let fileStat;
 	try {
@@ -220,7 +219,7 @@ router.get('/items/:id/preview/:file', async function (req, res, next) {
 	catch (err) {
 		if (err.code !== 'ENOENT') return next(err);
 
-		const pathToOriginalFile = path.resolve(path.join(DB_DIR, id, file));
+		const pathToOriginalFile = path.resolve(path.join(ITEMS_DIR, id, file));
 		try {
 			await fs.promises.stat(pathToOriginalFile);
 		} catch (err) {
