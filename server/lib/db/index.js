@@ -38,7 +38,8 @@ async function getItem(id) {
 	const infoPath = path.join(ITEMS_DIR, id, INFO_FILE);
 	let info;
 	try {
-		info = JSON.parse(await fs.promises.readFile(infoPath, 'utf8'));
+		info = { type: "", brand: "", model: "", place: "", comment: "" };
+		Object.assign(info, JSON.parse(await fs.promises.readFile(infoPath, 'utf8')));
 	} catch (err) {
 		if (err.code !== 'ENOENT') throw Error(err);
 	}
