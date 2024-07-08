@@ -16,28 +16,28 @@ block content
 				.control 
 					label.control__container
 						span.control__title type
-						input.control__input(type="text", name="type", value=item.type)
+						input.control__input(type="text", name="type", value=item.info.type)
 				.control 
 					label.control__container
 						span.control__title brand
-						input.control__input(type="text", name="brand", value=item.brand)
+						input.control__input(type="text", name="brand", value=item.info.brand)
 				.control 
 					label.control__container
 						span.control__title model
-						input.control__input(type="text", name="model", value=item.model)
+						input.control__input(type="text", name="model", value=item.info.model)
 				.control 
 					label.control__container
 						span.control__title place
-						input.control__input(type="text", name="place", value=item.place)
+						input.control__input(type="text", name="place", value=item.info.place)
 				.control 
 					label.control__container
 						span.control__title comment
-						textarea.control__textarea(name="comment")= item.comment
+						textarea.control__textarea(name="comment")= item.info.comment
 
 			-
 				const pictures = [];
 				const docs = [];
-				for (const file of files) {
+				for (const file of item.files) {
 					if (['jpg', 'png', 'webp', 'avif'].some(ext => file.endsWith(ext))) {
 						pictures.push(file); 
 					} else {
@@ -122,7 +122,7 @@ block content
 		article.item-card 
 			table.params-list 
 				tbody
-					each value, name in item 
+					each value, name in item.info 
 						tr 
 							td= name
 							td= value
@@ -130,7 +130,7 @@ block content
 		-
 			const pictures = [];
 			const docs = [];
-			for (const file of files) {
+			for (const file of item.files) {
 				if (['jpg', 'png', 'webp', 'avif'].some(ext => file.endsWith(ext))) {
 					pictures.push(file); 
 				} else {
