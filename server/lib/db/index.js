@@ -3,6 +3,7 @@ const fs = require('fs');
 const path = require('path');
 const os = require('os');
 const crypto = require('crypto');
+const writeFileAtomic = require('write-file-atomic');
 
 const resize = require('../utils/ffmpeg.js');
 
@@ -105,7 +106,7 @@ async function createWriteFileStream({ id, file }) {
 async function writeInfo({ id, info }) {
 	const infoPath = path.join(ITEMS_DIR, id, INFO_FILE);
 	// TODO validate info
-	await fs.promises.writeFile(infoPath, JSON.stringify(info, null, 4));
+	await writeFileAtomic(infoPath, JSON.stringify(info, null, 4));
 }
 module.exports = {
 	getItems,
