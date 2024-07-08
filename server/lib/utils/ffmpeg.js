@@ -3,6 +3,7 @@ const { spawn, spawnSync } = require("child_process");
 process.stdout.write("checking ffmpeg... ");
 const res = spawnSync("ffmpeg");
 if (res.error) {
+	process.stdout.write("error.\n");
 	console.error(res.error);
 	process.exit(1);
 }
