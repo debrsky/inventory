@@ -1,15 +1,8 @@
-const config = require('../../../config.js');
-const fs = require('fs');
-const path = require('path');
-const os = require('os');
-const crypto = require('crypto');
-
 const send = require('send');
 send.mime.define({
 	'image/avif': ['avif']
 });
 
-const iconv = require('iconv-lite');
 const busboy = require('busboy');
 
 const express = require('express');
