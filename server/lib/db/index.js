@@ -67,7 +67,11 @@ async function getPathToPreviewFile({ id, file }) {
 		const pathToOriginalFile = path.resolve(path.join(ITEMS_DIR, id, file));
 		await fs.promises.access(pathToOriginalFile, fs.constants.F_OK);
 		await fs.promises.mkdir(dir, { recursive: true });
-		await resize(pathToOriginalFile, pathToFile);
+		try {
+			await resize(pathToOriginalFile, pathToFile);
+		} catch (err) {
+			throw Error("ffmpeg error", { cause: err });
+		}
 	}
 
 	return pathToFile;

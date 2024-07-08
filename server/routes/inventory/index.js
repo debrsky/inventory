@@ -139,19 +139,25 @@ router.get('/items/:id/preview/:file', async function (req, res, next) {
 
 	const file = req.params.file;
 
-	const pathToFile = await DB.getPathToPreviewFile({ id, file });
+	try {
 
-	const stream = send(req, pathToFile)
-		.on('error', (err) => {
-			if (err.code === 'ENOENT') return next();
-			return next(err);
-		}).on('headers', (res, path, stat) => {
-			if (/Report.htm$/.test(path)) {
-				res.setHeader('Content-Type', 'text/html; charset=Windows-1251')
-			};
-		});
+		const pathToFile = await DB.getPathToPreviewFile({ id, file });
 
-	stream.pipe(res);
+		const stream = send(req, pathToFile)
+			.on('error', (err) => {
+				if (err.code === 'ENOENT') return next();
+				return next(err);
+			}).on('headers', (res, path, stat) => {
+				if (/Report.htm$/.test(path)) {
+					res.setHeader('Content-Type', 'text/html; charset=Windows-1251')
+				};
+			});
+
+		stream.pipe(res);
+	} catch (err) {
+		if (err.code === 'ENOENT') return next();
+		return next(err);
+	}
 });
 
 module.exports = router;
