@@ -15,6 +15,8 @@ const INFO_FILE = 'info.json';
 const ID_SCHEMA = /^\d\d\d\d$/;
 
 async function getItems() {
+	await fs.promises.mkdir(ITEMS_DIR, { recursive: true });
+
 	const ids = (await fs.promises.readdir(ITEMS_DIR, { withFileTypes: true }))
 		.filter(file => file.isDirectory() && ID_SCHEMA.test(file.name))
 		.map(el => el.name);
@@ -80,12 +82,13 @@ async function getPathToPreviewFile({ id, file }) {
 async function addIds(count) {
 	const ids = (await fs.promises.readdir(ITEMS_DIR, { withFileTypes: true }))
 		.filter(file => file.isDirectory() && ID_SCHEMA.test(file.name))
-		.map(el => Number(el.name))
-		.sort((a, b) => a - b);
-	const lastId = ids.at(-1);
+		.map(el => Number(el.name));
+
+	const lastId = ids.reduce((max, cur) => cur > max ? cur : max, 1000);
+
 	const newIds = Array.from({ length: count }, (_, i) => (lastId + 1 + i).toString());
 
-	await Promise.all(newIds.map(newId => fs.promises.mkdir(path.join(ITEMS_DIR, newId))));
+	await Promise.all(newIds.map(newId => fs.promises.mkdir(path.join(ITEMS_DIR, newId), { recursive: true })));
 }
 
 async function removeFile({ id, file }) {
@@ -97,7 +100,11 @@ async function removeFile({ id, file }) {
 async function createWriteFileStream({ id, file }) {
 	const tempdir = os.tmpdir();
 	const tempfname = crypto.randomUUID();
-	const pathToFile = path.join(ITEMS_DIR, id, file);
+
+	const dir = path.join(ITEMS_DIR, id);
+	await fs.promises.mkdir(dir, { recursive: true });
+	const pathToFile = path.join(dir, file);
+
 	const pathToTempFile = path.join(tempdir, tempfname);
 	const ws = fs.createWriteStream(pathToTempFile)
 		.on('finish', () => {
@@ -108,9 +115,11 @@ async function createWriteFileStream({ id, file }) {
 }
 
 async function writeInfo({ id, info }) {
-	const infoPath = path.join(ITEMS_DIR, id, INFO_FILE);
+	const dir = path.join(ITEMS_DIR, id);
+	await fs.promises.mkdir(dir, { recursive: true });
+	const pathToFile = path.join(dir, INFO_FILE);
 	// TODO validate info
-	await writeFileAtomic(infoPath, JSON.stringify(info, null, 4));
+	await writeFileAtomic(pathToFile, JSON.stringify(info, null, 4));
 }
 module.exports = {
 	getItems,
