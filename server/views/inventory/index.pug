@@ -3,15 +3,22 @@ extends ./layout
 block content
 	h1= title
 
-	ul.breadcrumbs
-		li.breadcrumbs__item
-			a.breadcrumbs__link(href="#") Всё
-		li.breadcrumbs__item
-			a.breadcrumbs__link(href="#") Кабинеты
-		li.breadcrumbs__item
-			a.breadcrumbs__link(href="#") 402
-
-
+	form.items-filter(name="filter") 
+		.control
+			label
+				span.control__label place
+				select(name='place')
+					option(value='∅') ∅
+					each place in places
+						option(value=place)= place
+		.control
+			label
+				span.control__label tag
+				select(name="tag")
+					option(value='∅') ∅
+					each tag in tags
+						option(value=tag)= tag
+	
 	table.items-list
 		thead
 			tr 
@@ -22,13 +29,36 @@ block content
 				th place
 		tbody
 			each item in items 
-				tr
+				tr(data-place=item.place, data-tags=item.tags.join(' '))
 					td(style="word-break: normal")
 						a(href=`${baseUrl}/items/${item.id}`)= item.id
 					td= item.type
 					td= item.brand
 					td= item.model
 					td= item.place
+
+	script. 
+		const filterForm = document.forms.filter;
+		const placeSelect = filterForm.elements.place;
+		const tagSelect = filterForm.elements.tag;
+		const trs = document.querySelectorAll('table.items-list tbody tr');
+
+		filterForm.addEventListener('change', (event) => {
+			const formData = new FormData(filterForm);
+			const place = formData.get('place');
+			const tag = formData.get('tag');
+
+			for (const tr of trs) {
+				tr.setAttribute('hidden', 'hidden');
+				if ((place === '∅' || tr.dataset.place === place) 
+					&& (tag === '∅' || tr.dataset.tags.split(' ').includes(tag))) 
+				{
+					tr.removeAttribute('hidden');
+				}
+			}
+		})
+
+
 
 	form(action='', method='POST')
 		button Добавить id

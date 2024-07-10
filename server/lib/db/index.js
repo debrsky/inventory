@@ -39,7 +39,11 @@ async function getItems() {
 		if (res.status === "rejected" && res.reason.code !== "ENOENT") throw Error(res.reason);
 		if (res.status === "rejected") return { id: ids[idx] };
 		// res.status === "fulfilled"
-		return { id: ids[idx], ...JSON.parse(res.value) };
+
+		const info = JSON.parse(res.value);
+		const tags = (info.comment ?? '').match(/#\S+/g) ?? [];
+
+		return { id: ids[idx], ...info, tags };
 	});
 
 	return items;
@@ -201,7 +205,33 @@ async function writeInfo(id, info) {
 	await writeFileAtomic(pathToFile, JSON.stringify(info, null, 4));
 }
 
+/**
+ * Retrieves a sorted list of unique places from the items.
+ * @async
+ * @function getPlaces
+ * @returns {Promise<Array<string>>} A promise that resolves to an array of sorted unique places.
+ */
+async function getPlaces() {
+	const items = await getItems();
+	const places = [...new Set(items.map(item => item.place))];
+	return places.sort();
+}
+
+/**
+ * Retrieves a sorted list of unique tags from the comments of all items.
+ * 
+ * @async
+ * @function getTags
+ * @returns {Promise<Array<string>>} A promise that resolves to an array of sorted unique tags.
+ */
+async function getTags() {
+	const items = await getItems();
+	const tags = [...new Set(items.map(item => item.tags).flat())];
+	return tags.sort();
+}
+
 module.exports = {
+	ID_SCHEMA,
 	getItems,
 	getItem,
 	getPathToFile,
@@ -210,5 +240,6 @@ module.exports = {
 	removeFile,
 	createWriteFileStream,
 	writeInfo,
-	ID_SCHEMA
+	getPlaces,
+	getTags
 }
