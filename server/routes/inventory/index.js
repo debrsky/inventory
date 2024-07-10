@@ -163,12 +163,14 @@ router.get('/items/:id/preview/:file', async function (req, res, next) {
 	}
 });
 
-router.get('/items.zip', function (req, res, next) {
+router.get('/items.zip', async function (req, res, next) {
 	res.setHeader('Content-Type', 'application/zip');
 	res.setHeader('Content-Disposition', 'attachment; filename=items.zip');
-	DB.zipArchive(res, (err) => {
+	try {
+		await DB.zipArchive(res);
+	} catch (err) {
 		return next(err);
-	})
+	}
 })
 
 module.exports = router;

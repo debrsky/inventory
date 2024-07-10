@@ -231,14 +231,21 @@ async function getTags() {
 	return tags.sort();
 }
 
-async function zipArchive(output, onError) {
+/**
+ * Creates a zip archive of the contents of the specified directory and pipes it to the provided output stream.
+ *
+ * @async
+ * @function zipArchive
+ * @param {stream.Writable} output - The output stream to which the zip archive will be piped.
+ * @returns {Promise<void>} - A promise that resolves when the archive has been finalized.
+ */
+async function zipArchive(output) {
 	const archive = archiver('zip', {
-		zlib: { level: 1 } // Уровень сжатия
+		zlib: { level: 1 } // Compression level
 	});
-	archive.on('error', (err) => onError(err));
 	archive.pipe(output);
 	archive.directory(ITEMS_DIR, false);
-	archive.finalize();
+	await archive.finalize();
 }
 
 module.exports = {
