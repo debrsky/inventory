@@ -29,7 +29,7 @@ block content
 				th place
 		tbody
 			each item in items 
-				tr(data-place=item.place, data-tags=item.tags.join(' '))
+				tr(data-place=item.place, data-tags=Array.isArray(item.tags) ? item.tags.join(' ') : item.tags)
 					td(style="word-break: normal")
 						a(href=`${baseUrl}/items/${item.id}`)= item.id
 					td= item.type
@@ -57,8 +57,6 @@ block content
 				}
 			}
 		})
-
-
 
 	form(action='', method='POST')
 		button Добавить id
