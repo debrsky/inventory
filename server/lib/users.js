@@ -2,7 +2,7 @@ const config = require('../../config.js');
 const fs = require('fs').promises;
 const writeFileAtomic = require('write-file-atomic');
 const path = require('path');
-const {pbkdf2, randomBytes, timingSafeEqual} = require('crypto');
+const { pbkdf2, randomBytes, timingSafeEqual } = require('crypto');
 
 const ITERATIONS = 100000;
 const KEYLEN = 32;
@@ -11,11 +11,28 @@ const ENCODING = 'base64url';
 
 const usersFile = path.join(config.rootDir, config.storage, 'users.json');
 
+/**
+ * Retrieves a user by their unique identifier.
+ *
+ * @async
+ * @function getUserById
+ * @param {string} id - The unique identifier of the user.
+ * @returns {Promise<Object|undefined>} A promise that resolves to the user object if found, or undefined if not found.
+ */
 async function getUserById(id) {
 	const users = await readUsers();
 	return users.find((user) => user.id === id);
 }
 
+/**
+ * Retrieves a user by their username and password.
+ * 
+ * @async
+ * @function getUserByNamePassword
+ * @param {string} username - The username of the user.
+ * @param {string} password - The password of the user.
+ * @returns {Promise<Object|null>} - A promise that resolves to the user object if found and authenticated, otherwise null.
+ */
 async function getUserByNamePassword(username, password) {
 	const usernameNormalized = username.normalize();
 
@@ -80,4 +97,4 @@ async function readUsers() {
 	return users;
 }
 
-module.exports = {getUserById, getUserByNamePassword};
+module.exports = { getUserById, getUserByNamePassword };
