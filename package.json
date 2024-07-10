@@ -37,6 +37,7 @@
     "svelte": "^4.2.18"
   },
   "dependencies": {
+    "archiver": "^7.0.1",
     "busboy": "^1.6.0",
     "cookie-parser": "^1.4.6",
     "express": "^4.19.2",

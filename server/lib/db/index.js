@@ -4,6 +4,7 @@ const path = require('path');
 const os = require('os');
 const crypto = require('crypto');
 const writeFileAtomic = require('write-file-atomic');
+const archiver = require('archiver');
 
 const resize = require('../utils/ffmpeg.js');
 
@@ -230,6 +231,16 @@ async function getTags() {
 	return tags.sort();
 }
 
+async function zipArchive(output, onError) {
+	const archive = archiver('zip', {
+		zlib: { level: 1 } // Уровень сжатия
+	});
+	archive.on('error', (err) => onError(err));
+	archive.pipe(output);
+	archive.directory(ITEMS_DIR, false);
+	archive.finalize();
+}
+
 module.exports = {
 	ID_SCHEMA,
 	getItems,
@@ -241,5 +252,6 @@ module.exports = {
 	createWriteFileStream,
 	writeInfo,
 	getPlaces,
-	getTags
+	getTags,
+	zipArchive
 }
