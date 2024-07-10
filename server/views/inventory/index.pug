@@ -51,7 +51,7 @@ block content
 			for (const tr of trs) {
 				tr.setAttribute('hidden', 'hidden');
 				if ((place === '∅' || tr.dataset.place === place) 
-					&& (tag === '∅' || tr.dataset.tags.split(' ').includes(tag))) 
+					&& (tag === '∅' || (tr.dataset.tags ?? '').split(' ').includes(tag))) 
 				{
 					tr.removeAttribute('hidden');
 				}
