@@ -108,7 +108,10 @@ async function createWriteFileStream(id, file) {
 	const pathToTempFile = path.join(tempdir, tempfname);
 	const ws = fs.createWriteStream(pathToTempFile)
 		.on('finish', () => {
-			fs.rename(pathToTempFile, pathToFile, (err) => { if (err) console.error(err) });
+			fs.copyFile(pathToTempFile, pathToFile, (err) => {
+				if (err) return console.error(err);
+				fs.unlink(pathToTempFile, (err) => console.error(err));
+			});
 		});
 
 	return ws;
