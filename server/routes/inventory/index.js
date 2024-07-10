@@ -94,6 +94,7 @@ router.post('/items/:id', async function (req, res, next) {
 			const newSearchStr = searchParams.size > 0 ? `?${searchParams.toString()}` : '';
 			const url = req.originalUrl.replace(searchStr, newSearchStr);
 
+			// TODO checking success of processing of all uploaded files
 			res.redirect(url);
 
 		} catch (err) {
