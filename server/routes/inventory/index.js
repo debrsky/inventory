@@ -58,7 +58,7 @@ router.post('/items/:id', async function (req, res, next) {
 		const { filename, encoding, mimeType } = info;
 
 		if (name === "file" && filename) {
-			const ws = await DB.createWriteFileStream({ id, file: filename });
+			const ws = await DB.createWriteFileStream(id, filename);
 			file.pipe(ws);
 		} else {
 			file.on('data', () => { }); // no file
@@ -83,10 +83,10 @@ router.post('/items/:id', async function (req, res, next) {
 	bb.on('close', async () => {
 		try {
 			if (filesToRemove.length > 0) {
-				await Promise.all(filesToRemove.map(file => DB.removeFile({ id, file })));
+				await Promise.all(filesToRemove.map(file => DB.removeFile(id, file)));
 			}
 
-			await DB.writeInfo({ id, info: data });
+			await DB.writeInfo(id, data);
 
 			const searchStr = (req.originalUrl.match(/\?.*$/) ?? [])[0];
 			const searchParams = new URLSearchParams(searchStr);
@@ -114,7 +114,7 @@ router.get('/items/:id/:file', async function (req, res, next) {
 
 		const file = req.params.file;
 
-		const pathToFile = await DB.getPathToFile({ id, file });
+		const pathToFile = await DB.getPathToFile(id, file);
 
 		const stream = send(req, pathToFile)
 			.on('error', (err) => {
@@ -141,7 +141,7 @@ router.get('/items/:id/preview/:file', async function (req, res, next) {
 
 	try {
 
-		const pathToFile = await DB.getPathToPreviewFile({ id, file });
+		const pathToFile = await DB.getPathToPreviewFile(id, file);
 
 		const stream = send(req, pathToFile)
 			.on('error', (err) => {

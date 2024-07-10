@@ -50,13 +50,13 @@ async function getItem(id) {
 	return { id, info, files };
 }
 
-async function getPathToFile({ id, file }) {
+async function getPathToFile(id, file) {
 	const pathToFile = path.resolve(path.join(ITEMS_DIR, id, file)).replace(/\\/g, '/');
 	await fs.promises.access(pathToFile, fs.constants.F_OK);
 	return pathToFile;
 }
 
-async function getPathToPreviewFile({ id, file }) {
+async function getPathToPreviewFile(id, file) {
 	const dir = path.resolve(path.join(CACHE_DIR, id));
 	const pathToFile = path.resolve(path.join(dir, file));
 
@@ -91,13 +91,13 @@ async function addIds(count) {
 	await Promise.all(newIds.map(newId => fs.promises.mkdir(path.join(ITEMS_DIR, newId), { recursive: true })));
 }
 
-async function removeFile({ id, file }) {
+async function removeFile(id, file) {
 	const pathToFile = path.join(ITEMS_DIR, id, file);
 	await fs.promises.unlink(pathToFile);
 	// TODO remove cached preview files
 }
 
-async function createWriteFileStream({ id, file }) {
+async function createWriteFileStream(id, file) {
 	const tempdir = os.tmpdir();
 	const tempfname = crypto.randomUUID();
 
@@ -114,7 +114,7 @@ async function createWriteFileStream({ id, file }) {
 	return ws;
 }
 
-async function writeInfo({ id, info }) {
+async function writeInfo(id, info) {
 	const dir = path.join(ITEMS_DIR, id);
 	await fs.promises.mkdir(dir, { recursive: true });
 	const pathToFile = path.join(dir, INFO_FILE);
