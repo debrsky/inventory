@@ -43,7 +43,7 @@ setAuthorize(app);
 
 app.use(express.static(config.public));
 
-if (app.get('env') !== 'development') app.use(isLoggedIn);
+app.use(isLoggedIn);
 
 app.use('/', indexRouter);
 app.use('/users', usersRouter);
