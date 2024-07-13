@@ -12,7 +12,11 @@ const DB = require('../../lib/db/index.js');
 
 router.get('/', async function (req, res, next) {
 	try {
-		const items = await DB.getItems();
+		const items = (await DB.getItems()).sort((a, b) => {
+			if (a.id < b.id) return 1;
+			if (a.id > b.id) return -1;
+			return 0;
+		});
 		const places = await DB.getPlaces();
 		const tags = await DB.getTags();
 
