@@ -3,5 +3,6 @@ module.exports = {
 	public: 'public',
 	rootDir: __dirname,
 	storage: 'storage',
-	dbDir: 'storage/DB'
+	dbDir: 'storage/DB',
+	downloadDir: 'storage/download'
 };

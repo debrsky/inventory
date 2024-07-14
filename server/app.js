@@ -2,6 +2,8 @@ const config = require('../config.js');
 
 const createError = require('http-errors');
 const express = require('express');
+const serveIndex = require('serve-index');
+const fs = require('fs');
 const path = require('path');
 const cookieParser = require('cookie-parser');
 const logger = require('morgan');
@@ -42,6 +44,10 @@ app.use(sessions());
 setAuthorize(app);
 
 app.use(express.static(config.public));
+
+const downloadDir = config.downloadDir;
+fs.mkdirSync(downloadDir, { recursive: true });
+app.use('/download', express.static(downloadDir), serveIndex(downloadDir, { icons: true, view: 'details' }));
 
 app.use(isLoggedIn);
 
