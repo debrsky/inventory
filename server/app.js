@@ -45,11 +45,11 @@ setAuthorize(app);
 
 app.use(express.static(config.public));
 
+app.use(isLoggedIn);
+
 const downloadDir = config.downloadDir;
 fs.mkdirSync(downloadDir, { recursive: true });
 app.use('/download', express.static(downloadDir), serveIndex(downloadDir, { icons: true, view: 'details' }));
-
-app.use(isLoggedIn);
 
 app.use('/', indexRouter);
 app.use('/users', usersRouter);
