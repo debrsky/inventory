@@ -7,6 +7,7 @@ const cheerio = require('cheerio');
  *
  * @param {string} pathToReportFile - Путь к файлу отчета AIDA64.
  * @returns {Promise<Object>} Объект с информацией о системе, содержащий:
+ *   @returns {string} os - Информация об операционной системе.
  *   @returns {string} cpu - Тип центрального процессора.
  *   @returns {string} ram - Информация о системной памяти.
  *   @returns {string} mb - Информация о системной плате.
