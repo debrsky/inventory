@@ -39,11 +39,13 @@
   "dependencies": {
     "archiver": "^7.0.1",
     "busboy": "^1.6.0",
+    "cheerio": "^1.0.0-rc.12",
     "cookie-parser": "^1.4.6",
     "express": "^4.19.2",
     "express-session": "^1.18.0",
     "fast-xml-parser": "^4.4.0",
     "http-errors": "^2.0.0",
+    "iconv-lite": "^0.6.3",
     "morgan": "^1.10.0",
     "passport": "^0.7.0",
     "passport-local": "^1.0.0",

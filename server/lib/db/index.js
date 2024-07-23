@@ -7,11 +7,14 @@ const writeFileAtomic = require('write-file-atomic');
 const archiver = require('archiver');
 
 const resize = require('../utils/ffmpeg.js');
+const { parseReport } = require('../utils/aida64.js');
 
 const DB_DIR = config.dbDir;
 const CACHE_DIR = path.join(DB_DIR, 'CACHE');
 const ITEMS_DIR = path.join(DB_DIR, 'ITEMS');
 const INFO_FILE = 'info.json';
+const PC_FILE = 'pc.json';
+const REPORT_FILE = 'Report.htm';
 
 /**
  * Regular expression to validate item IDs.
@@ -71,7 +74,26 @@ async function getItem(id) {
 		if (err.code !== 'ENOENT') throw Error(err);
 	}
 
-	return { id, info, files };
+	let pc;
+
+	if (['pc', 'aio', 'laptop', 'nbk'].includes(info.type.toLowerCase())) {
+		const pcPath = path.join(ITEMS_DIR, id, PC_FILE);
+		try {
+			pc = { cpu: "", ram: "", mb: "", drives: [] };
+			Object.assign(pc, JSON.parse(await fs.promises.readFile(pcPath, 'utf8')));
+		} catch (err) {
+			if (err.code !== 'ENOENT') throw Error(err);
+
+			try {
+				pc = await getReportData(id);
+				await writeFileAtomic(pcPath, JSON.stringify(pc));
+			} catch (err) {
+				if (err.code !== 'ENOENT') throw Error(err);
+			}
+		}
+	}
+
+	return { id, info, files, pc };
 }
 
 /**
@@ -248,6 +270,21 @@ async function zipArchive(output) {
 	await archive.finalize();
 }
 
+/**
+ * Retrieves and parses the report data for a specified item.
+ * @async
+ * @function getReportData
+ * @param {string} id - The ID of the item.
+ * @returns {Promise<Object>} A promise that resolves to the parsed report data.
+ * @throws {Error} If the report file does not exist or cannot be parsed.
+ */
+async function getReportData(id) {
+	const pathToReportFile = path.join(ITEMS_DIR, id, 'Report.htm');
+	const data = await parseReport(pathToReportFile);
+
+	return data;
+}
+
 module.exports = {
 	ID_SCHEMA,
 	getItems,
@@ -260,5 +297,6 @@ module.exports = {
 	writeInfo,
 	getPlaces,
 	getTags,
-	zipArchive
+	zipArchive,
+	getReportData
 }

@@ -127,6 +127,17 @@ block content
 							td= name
 							td= value
 
+		if item.pc
+			article 
+				table.params-list 
+					caption Computer
+					tbody
+						each value, name in item.pc
+							tr 
+								td= name
+								td !{Array.isArray(value) ? value.join('<br>') : value}
+				
+
 		-
 			const pictures = [];
 			const docs = [];
