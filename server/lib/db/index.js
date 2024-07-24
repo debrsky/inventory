@@ -279,7 +279,7 @@ async function zipArchive(output) {
  * @throws {Error} If the report file does not exist or cannot be parsed.
  */
 async function getReportData(id) {
-	const pathToReportFile = path.join(ITEMS_DIR, id, 'Report.htm');
+	const pathToReportFile = path.join(ITEMS_DIR, id, REPORT_FILE);
 	const data = await parseReport(pathToReportFile);
 
 	return data;
