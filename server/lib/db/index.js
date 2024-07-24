@@ -13,8 +13,25 @@ const DB_DIR = config.dbDir;
 const CACHE_DIR = path.join(DB_DIR, 'CACHE');
 const ITEMS_DIR = path.join(DB_DIR, 'ITEMS');
 const INFO_FILE = 'info.json';
+const INFO_ARCHIVE_DIR = 'ARCHIVE';
 const PC_FILE = 'pc.json';
 const REPORT_FILE = 'Report.htm';
+
+const timezone = Intl.DateTimeFormat().resolvedOptions().timeZone;
+console.log(`current timezone: ${timezone}`);
+
+function getCurrentDateTimeFormatted() {
+	const now = new Date();
+
+	const year = String(now.getFullYear()).padStart(4, '0');
+	const month = String(now.getMonth() + 1).padStart(2, '0'); // Месяцы начинаются с 0
+	const day = String(now.getDate()).padStart(2, '0');
+	const hours = String(now.getHours()).padStart(2, '0');
+	const minutes = String(now.getMinutes()).padStart(2, '0');
+	const seconds = String(now.getSeconds()).padStart(2, '0');
+
+	return `${year}${month}${day}${hours}${minutes}${seconds}`;
+}
 
 /**
  * Regular expression to validate item IDs.
@@ -222,8 +239,28 @@ async function createWriteFileStream(id, file) {
  */
 async function writeInfo(id, info) {
 	const dir = path.join(ITEMS_DIR, id);
+	const archiveDir = path.join(dir, INFO_ARCHIVE_DIR);
 	await fs.promises.mkdir(dir, { recursive: true });
 	const pathToFile = path.join(dir, INFO_FILE);
+
+	let isInfoExists = true;
+	try {
+		fs.promises.access(pathToFile);
+	} catch (err) {
+		if (err.code !== 'ENOENT') throw err;
+		isInfoExists = false;
+	};
+
+	if (isInfoExists) {
+		const timestamp = getCurrentDateTimeFormatted();
+		const extname = path.extname(INFO_FILE);
+		const basename = path.basename(INFO_FILE, extname);
+		const archiveFileName = `${basename}.${timestamp}${extname}`;
+		const pathToArchiveFile = path.join(archiveDir, archiveFileName);
+		await fs.promises.mkdir(archiveDir, { recursive: true });
+		await fs.promises.copyFile(pathToFile, pathToArchiveFile);
+	}
+
 	// TODO validate info
 	await writeFileAtomic(pathToFile, JSON.stringify(info, null, 4));
 }
