@@ -252,6 +252,7 @@ async function writeInfo(id, info) {
 	};
 
 	if (isInfoExists) {
+		// TODO analyze what will happen if multiple clients try to simultaneously save changes to info.json
 		const timestamp = getCurrentDateTimeFormatted();
 		const extname = path.extname(INFO_FILE);
 		const basename = path.basename(INFO_FILE, extname);
