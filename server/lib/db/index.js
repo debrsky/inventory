@@ -245,7 +245,7 @@ async function writeInfo(id, info) {
 
 	let isInfoExists = true;
 	try {
-		fs.promises.access(pathToFile);
+		await fs.promises.access(pathToFile);
 	} catch (err) {
 		if (err.code !== 'ENOENT') throw err;
 		isInfoExists = false;
