@@ -238,6 +238,9 @@ async function createWriteFileStream(id, file) {
  * @throws {Error} If there is an error during the writing process.
  */
 async function writeInfo(id, info) {
+	const timestamp = getCurrentDateTimeFormatted();
+	info.date = timestamp;
+
 	const dir = path.join(ITEMS_DIR, id);
 	const archiveDir = path.join(dir, INFO_ARCHIVE_DIR);
 	await fs.promises.mkdir(dir, { recursive: true });
@@ -253,7 +256,6 @@ async function writeInfo(id, info) {
 
 	if (isInfoExists) {
 		// TODO analyze what will happen if multiple clients try to simultaneously save changes to info.json
-		const timestamp = getCurrentDateTimeFormatted();
 		const extname = path.extname(INFO_FILE);
 		const basename = path.basename(INFO_FILE, extname);
 		const archiveFileName = `${basename}.${timestamp}${extname}`;
