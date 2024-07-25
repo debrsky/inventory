@@ -34,6 +34,39 @@ function getCurrentDateTimeFormatted() {
 }
 
 /**
+ * Compares two Info objects for equality.
+ * The function checks if both objects have the same keys and values.
+ * @param {Object} info1 - The first object to compare.
+ * @param {Object} info2 - The second object to compare.
+ * @returns {boolean} True if the objects are equal, false otherwise.
+ */
+function areInfoObjectsEqual(info1, info2) {
+	// Check if both are objects and not null
+	if (typeof info1 !== 'object' || info1 === null || typeof info2 !== 'object' || info2 === null) {
+		return false;
+	}
+
+	// Get keys of both objects
+	const keys1 = Object.keys(info1).filter(key => key !== 'date');
+	const keys2 = Object.keys(info2).filter(key => key !== 'date');
+
+	// Compare number of keys
+	if (keys1.length !== keys2.length) {
+		return false;
+	}
+
+	// Check each key and value
+	for (const key of keys1) {
+		if (!keys2.includes(key) || info1[key] !== info2[key]) {
+			return false;
+		}
+	}
+
+	return true;
+}
+
+
+/**
  * Regular expression to validate item IDs.
  * IDs should be exactly four digits long.
  * @type {RegExp}
@@ -246,15 +279,16 @@ async function writeInfo(id, info) {
 	await fs.promises.mkdir(dir, { recursive: true });
 	const pathToFile = path.join(dir, INFO_FILE);
 
-	let isInfoExists = true;
+	let infoOld;
 	try {
-		await fs.promises.access(pathToFile);
+		infoOld = JSON.parse(await fs.promises.readFile(pathToFile, 'utf8'));
 	} catch (err) {
 		if (err.code !== 'ENOENT') throw err;
-		isInfoExists = false;
 	};
 
-	if (isInfoExists) {
+	if (infoOld && areInfoObjectsEqual(infoOld, info)) return;
+
+	if (infoOld) {
 		// TODO analyze what will happen if multiple clients try to simultaneously save changes to info.json
 		const extname = path.extname(INFO_FILE);
 		const basename = path.basename(INFO_FILE, extname);
