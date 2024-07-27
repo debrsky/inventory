@@ -15,6 +15,7 @@ const { setAuthorize, isLoggedIn } = require('./lib/auth.js');
 const indexRouter = require('./routes/index');
 const usersRouter = require('./routes/users');
 const inventoryRouter = require('./routes/inventory');
+const roomsRouter = require('./routes/rooms');
 
 const app = express();
 app.use(responseTime());
@@ -54,6 +55,7 @@ app.use('/download', express.static(downloadDir), serveIndex(downloadDir, { icon
 app.use('/', indexRouter);
 app.use('/users', usersRouter);
 app.use('/inventory', inventoryRouter);
+app.use('/rooms', roomsRouter);
 
 // catch 404 and forward to error handler
 app.use(function (req, res, next) {

@@ -1,0 +1,25 @@
+extends ../layout
+
+mixin renderTree(node)
+	li.rooms__node
+		span.rooms__node-name= node.name
+		if node.files && node.files.length
+			ul.rooms__file-list 
+				each file in node.files
+					li.rooms__file
+						- const imgUrl = file.path.slice('/ROOMS/'.length)
+						a(href=`${baseUrl}/${imgUrl}`, target="_blank")
+							img.room__preview-img(src=`${baseUrl}/preview/${encodeURIComponent(file.path)}`, loading="lazy", alt="", width="150", height="150")
+
+		if node.children && node.children.length
+			ul.rooms__children
+				each child in node.children
+					+renderTree(child)
+
+block content
+	article.rooms
+		ul.rooms__root
+			+renderTree(rooms)
+
+		//- pre= JSON.stringify(rooms, null, 2)
+
