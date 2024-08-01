@@ -7,4 +7,13 @@ html.page(lang='ru')
     link(rel='stylesheet', href='/vendor/sanitize.css')
     link(rel='stylesheet', href='/css/style.css')
   body.page__body
+    header
+      nav.menu
+        ul.menu__list
+          li.menu__item
+            a.menu__link(href="rooms") Помещения
+          li.menu__item
+            a.menu__link(href="inventory") Оборудование
+    
     block content
+    script(src="js/index.js")
