@@ -1,4 +1,4 @@
-const config = require('../../../../config.js');
+const config = require('../../../config.js');
 const fs = require('fs');
 const path = require('path');
 
@@ -6,7 +6,7 @@ const DB_DIR = config.dbDir;
 const ROOMS_DIR = path.join(DB_DIR, 'ROOMS');
 const ROOMS_CACHE_DIR = path.join(DB_DIR, 'CACHE/ROOMS');
 
-const resize = require('../../utils/ffmpeg.js');
+const resize = require('../utils/ffmpeg.js');
 
 async function getRoomsStructure() {
 	function preparePath(path) {
@@ -93,6 +93,7 @@ async function getPathToFile(file) {
 }
 
 module.exports = {
+	ROOMS_DIR,
 	getRoomsStructure,
 	getPathToPreviewFile,
 	getPathToFile

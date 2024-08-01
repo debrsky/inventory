@@ -9,6 +9,8 @@ const cookieParser = require('cookie-parser');
 const logger = require('morgan');
 const responseTime = require('response-time');
 
+const db = require('./lib/db/index.js');
+
 const sessions = require('./lib/sessions');
 const { setAuthorize, isLoggedIn } = require('./lib/auth.js');
 
@@ -56,6 +58,17 @@ app.use('/', indexRouter);
 app.use('/users', usersRouter);
 app.use('/inventory', inventoryRouter);
 app.use('/rooms', roomsRouter);
+
+app.get('/db.zip', async function (req, res, next) {
+	res.setHeader('Content-Type', 'application/zip');
+	res.setHeader('Content-Disposition', 'attachment; filename=db.zip');
+	try {
+		await db.zipArchive(res);
+	} catch (err) {
+		return next(err);
+	}
+})
+
 
 // catch 404 and forward to error handler
 app.use(function (req, res, next) {
