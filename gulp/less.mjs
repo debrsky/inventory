@@ -7,18 +7,18 @@ import cssnano from 'cssnano';
 import rename from 'gulp-rename';
 
 export default function less() {
-	const SRC_DIR = process.srcDir;
-	const DEST_DIR = process.destDir;
+  const SRC_DIR = process.srcDir;
+  const DEST_DIR = process.destDir;
 
-	const postcssPlugins = [autoprefixer()];
-	if (process.env.NODE_ENV === 'production')
-		postcssPlugins.push(cssnano({ preset: 'default' }));
+  const postcssPlugins = [autoprefixer()];
+  if (process.env.NODE_ENV === 'production')
+    postcssPlugins.push(cssnano({ preset: 'default' }));
 
-	return gulp
-		.src(`${SRC_DIR}/less/style.less`, { sourcemaps: true })
-		.pipe(plumber())
-		.pipe(gulpLess())
-		.pipe(postcss(postcssPlugins))
-		.pipe(rename('style.css'))
-		.pipe(gulp.dest(`${DEST_DIR}/css`, { sourcemaps: '.' }));
+  return gulp
+    .src(`${SRC_DIR}/less/style.less`, { sourcemaps: true })
+    .pipe(plumber())
+    .pipe(gulpLess())
+    .pipe(postcss(postcssPlugins))
+    .pipe(rename('style.css'))
+    .pipe(gulp.dest(`${DEST_DIR}/css`, { sourcemaps: '.' }));
 }

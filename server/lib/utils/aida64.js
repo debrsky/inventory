@@ -15,25 +15,34 @@ const cheerio = require('cheerio');
  * @throws {Error} В случае возникновения ошибки при чтении или парсинге файла.
  */
 async function parseReport(pathToReportFile) {
-	const report = iconv.decode(await fs.promises.readFile(pathToReportFile), 'win1251');
-	const $ = cheerio.load(report);
+  const report = iconv.decode(
+    await fs.promises.readFile(pathToReportFile),
+    'win1251'
+  );
+  const $ = cheerio.load(report);
 
-	const summary = $('table:has(a[name="summary"]) + table');
+  const summary = $('table:has(a[name="summary"]) + table');
 
-	const mb = summary.find('td:contains("Системная плата") + td').text().trim();
-	const cpu = summary.find('td:contains("Тип ЦП") + td').text().trim();
-	const ram = summary.find('td:contains("Системная память") + td').text().trim();
+  const mb = summary.find('td:contains("Системная плата") + td').text().trim();
+  const cpu = summary.find('td:contains("Тип ЦП") + td').text().trim();
+  const ram = summary
+    .find('td:contains("Системная память") + td')
+    .text()
+    .trim();
 
-	const drives = [];
-	summary.find('td:contains("Дисковый накопитель") + td').each((i, elem) => {
-		drives.push($(elem).text().trim());
-	});
+  const drives = [];
+  summary.find('td:contains("Дисковый накопитель") + td').each((i, elem) => {
+    drives.push($(elem).text().trim());
+  });
 
-	const os = summary.find('td:contains("Операционная система") + td').text().trim();
+  const os = summary
+    .find('td:contains("Операционная система") + td')
+    .text()
+    .trim();
 
-	return { os, cpu, ram, mb, drives }
+  return { os, cpu, ram, mb, drives };
 }
 
 module.exports = {
-	parseReport
-}
+  parseReport
+};

@@ -12,17 +12,17 @@ const rooms = require('./rooms.js');
  * @returns {Promise<void>} - A promise that resolves when the archive has been finalized.
  */
 async function zipArchive(output) {
-	const archive = archiver('zip', {
-		zlib: { level: 1 } // Compression level
-	});
-	archive.pipe(output);
-	archive.directory(items.ITEMS_DIR, 'ITEMS');
-	archive.directory(rooms.ROOMS_DIR, 'ROOMS');
-	await archive.finalize();
+  const archive = archiver('zip', {
+    zlib: { level: 1 } // Compression level
+  });
+  archive.pipe(output);
+  archive.directory(items.ITEMS_DIR, 'ITEMS');
+  archive.directory(rooms.ROOMS_DIR, 'ROOMS');
+  await archive.finalize();
 }
 
 module.exports = {
-	items,
-	rooms,
-	zipArchive
-}
+  items,
+  rooms,
+  zipArchive
+};

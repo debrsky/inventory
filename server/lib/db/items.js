@@ -20,16 +20,16 @@ const timezone = Intl.DateTimeFormat().resolvedOptions().timeZone;
 console.log(`current timezone: ${timezone}`);
 
 function getCurrentDateTimeFormatted() {
-	const now = new Date();
+  const now = new Date();
 
-	const year = String(now.getFullYear()).padStart(4, '0');
-	const month = String(now.getMonth() + 1).padStart(2, '0'); // Месяцы начинаются с 0
-	const day = String(now.getDate()).padStart(2, '0');
-	const hours = String(now.getHours()).padStart(2, '0');
-	const minutes = String(now.getMinutes()).padStart(2, '0');
-	const seconds = String(now.getSeconds()).padStart(2, '0');
+  const year = String(now.getFullYear()).padStart(4, '0');
+  const month = String(now.getMonth() + 1).padStart(2, '0'); // Месяцы начинаются с 0
+  const day = String(now.getDate()).padStart(2, '0');
+  const hours = String(now.getHours()).padStart(2, '0');
+  const minutes = String(now.getMinutes()).padStart(2, '0');
+  const seconds = String(now.getSeconds()).padStart(2, '0');
 
-	return `${year}${month}${day}${hours}${minutes}${seconds}`;
+  return `${year}${month}${day}${hours}${minutes}${seconds}`;
 }
 
 /**
@@ -40,28 +40,33 @@ function getCurrentDateTimeFormatted() {
  * @returns {boolean} True if the objects are equal, false otherwise.
  */
 function areInfoObjectsEqual(info1, info2) {
-	// Check if both are objects and not null
-	if (typeof info1 !== 'object' || info1 === null || typeof info2 !== 'object' || info2 === null) {
-		return false;
-	}
+  // Check if both are objects and not null
+  if (
+    typeof info1 !== 'object' ||
+    info1 === null ||
+    typeof info2 !== 'object' ||
+    info2 === null
+  ) {
+    return false;
+  }
 
-	// Get keys of both objects
-	const keys1 = Object.keys(info1).filter(key => key !== 'date');
-	const keys2 = Object.keys(info2).filter(key => key !== 'date');
+  // Get keys of both objects
+  const keys1 = Object.keys(info1).filter((key) => key !== 'date');
+  const keys2 = Object.keys(info2).filter((key) => key !== 'date');
 
-	// Compare number of keys
-	if (keys1.length !== keys2.length) {
-		return false;
-	}
+  // Compare number of keys
+  if (keys1.length !== keys2.length) {
+    return false;
+  }
 
-	// Check each key and value
-	for (const key of keys1) {
-		if (!keys2.includes(key) || info1[key] !== info2[key]) {
-			return false;
-		}
-	}
+  // Check each key and value
+  for (const key of keys1) {
+    if (!keys2.includes(key) || info1[key] !== info2[key]) {
+      return false;
+    }
+  }
 
-	return true;
+  return true;
 }
 
 /**
@@ -77,7 +82,7 @@ const ID_SCHEMA = /^\d\d\d\d$/;
  * @returns {boolean} True if the ID is valid, false otherwise.
  */
 function isIdValid(id) {
-	return ID_SCHEMA.test(id);
+  return ID_SCHEMA.test(id);
 }
 
 /**
@@ -88,26 +93,31 @@ function isIdValid(id) {
  * @returns {Promise<Array<Object>>} An array of objects, each containing an item's ID and info.
  */
 async function getItems() {
-	await fs.promises.mkdir(ITEMS_DIR, { recursive: true });
+  await fs.promises.mkdir(ITEMS_DIR, { recursive: true });
 
-	const ids = (await fs.promises.readdir(ITEMS_DIR, { withFileTypes: true }))
-		.filter(file => file.isDirectory() && ID_SCHEMA.test(file.name))
-		.map(el => el.name);
+  const ids = (await fs.promises.readdir(ITEMS_DIR, { withFileTypes: true }))
+    .filter((file) => file.isDirectory() && ID_SCHEMA.test(file.name))
+    .map((el) => el.name);
 
-	const items = (await Promise.allSettled(
-		ids.map(id => fs.promises.readFile(path.join(ITEMS_DIR, id, INFO_FILE), 'utf8')))
-	).map((res, idx) => {
-		if (res.status === "rejected" && res.reason.code !== "ENOENT") throw Error(res.reason);
-		if (res.status === "rejected") return { id: ids[idx] };
-		// res.status === "fulfilled"
+  const items = (
+    await Promise.allSettled(
+      ids.map((id) =>
+        fs.promises.readFile(path.join(ITEMS_DIR, id, INFO_FILE), 'utf8')
+      )
+    )
+  ).map((res, idx) => {
+    if (res.status === 'rejected' && res.reason.code !== 'ENOENT')
+      throw Error(res.reason);
+    if (res.status === 'rejected') return { id: ids[idx] };
+    // res.status === "fulfilled"
 
-		const info = JSON.parse(res.value);
-		const tags = (info.comment ?? '').match(/#\S+/g) ?? [];
+    const info = JSON.parse(res.value);
+    const tags = (info.comment ?? '').match(/#\S+/g) ?? [];
 
-		return { id: ids[idx], ...info, tags };
-	});
+    return { id: ids[idx], ...info, tags };
+  });
 
-	return items;
+  return items;
 }
 
 /**
@@ -118,39 +128,44 @@ async function getItems() {
  * @returns {Promise<Object>} An object containing the item's ID, detailed info, and list of files.
  */
 async function getItem(id) {
-	const files = (await fs.promises.readdir(path.join(ITEMS_DIR, id), { withFileTypes: true }))
-		.filter(file => !file.isDirectory())
-		.map(el => el.name);
+  const files = (
+    await fs.promises.readdir(path.join(ITEMS_DIR, id), { withFileTypes: true })
+  )
+    .filter((file) => !file.isDirectory())
+    .map((el) => el.name);
 
-	const infoPath = path.join(ITEMS_DIR, id, INFO_FILE);
-	let info;
-	try {
-		info = { type: "", brand: "", model: "", place: "", comment: "" };
-		Object.assign(info, JSON.parse(await fs.promises.readFile(infoPath, 'utf8')));
-	} catch (err) {
-		if (err.code !== 'ENOENT') throw Error(err);
-	}
+  const infoPath = path.join(ITEMS_DIR, id, INFO_FILE);
+  let info;
+  try {
+    info = { type: '', brand: '', model: '', place: '', comment: '' };
+    Object.assign(
+      info,
+      JSON.parse(await fs.promises.readFile(infoPath, 'utf8'))
+    );
+  } catch (err) {
+    if (err.code !== 'ENOENT') throw Error(err);
+  }
 
-	let pc;
+  let pc;
 
-	if (['pc', 'aio', 'laptop', 'nbk'].includes(info.type.toLowerCase())) {
-		const pcPath = path.join(ITEMS_DIR, id, PC_FILE);
-		try {
-			pc = { cpu: "", ram: "", mb: "", drives: [] };
-			Object.assign(pc, JSON.parse(await fs.promises.readFile(pcPath, 'utf8')));
-		} catch (err) {
-			if (err.code !== 'ENOENT') throw Error(err);
+  if (['pc', 'aio', 'laptop', 'nbk'].includes(info.type.toLowerCase())) {
+    const pcPath = path.join(ITEMS_DIR, id, PC_FILE);
+    try {
+      pc = { cpu: '', ram: '', mb: '', drives: [] };
+      Object.assign(pc, JSON.parse(await fs.promises.readFile(pcPath, 'utf8')));
+    } catch (err) {
+      if (err.code !== 'ENOENT') throw Error(err);
 
-			try {
-				pc = await getReportData(id);
-				await writeFileAtomic(pcPath, JSON.stringify(pc));
-			} catch (err) {
-				if (err.code !== 'ENOENT') throw Error(err);
-			}
-		}
-	}
+      try {
+        pc = await getReportData(id);
+        await writeFileAtomic(pcPath, JSON.stringify(pc));
+      } catch (err) {
+        if (err.code !== 'ENOENT') throw Error(err);
+      }
+    }
+  }
 
-	return { id, info, files, pc };
+  return { id, info, files, pc };
 }
 
 /**
@@ -163,9 +178,11 @@ async function getItem(id) {
  * @throws {Error} If the file does not exist.
  */
 async function getPathToFile(id, file) {
-	const pathToFile = path.resolve(path.join(ITEMS_DIR, id, file)).replace(/\\/g, '/');
-	await fs.promises.access(pathToFile, fs.constants.F_OK);
-	return pathToFile;
+  const pathToFile = path
+    .resolve(path.join(ITEMS_DIR, id, file))
+    .replace(/\\/g, '/');
+  await fs.promises.access(pathToFile, fs.constants.F_OK);
+  return pathToFile;
 }
 
 /**
@@ -179,25 +196,25 @@ async function getPathToFile(id, file) {
  * @throws {Error} If the file does not exist or if there is an error during resizing.
  */
 async function getPathToPreviewFile(id, file) {
-	const dir = path.resolve(path.join(CACHE_DIR, id));
-	const pathToFile = path.resolve(path.join(dir, file));
+  const dir = path.resolve(path.join(CACHE_DIR, id));
+  const pathToFile = path.resolve(path.join(dir, file));
 
-	try {
-		await fs.promises.access(pathToFile, fs.constants.F_OK);
-	} catch (err) {
-		if (err.code !== 'ENOENT') throw Error(err);
+  try {
+    await fs.promises.access(pathToFile, fs.constants.F_OK);
+  } catch (err) {
+    if (err.code !== 'ENOENT') throw Error(err);
 
-		const pathToOriginalFile = path.resolve(path.join(ITEMS_DIR, id, file));
-		await fs.promises.access(pathToOriginalFile, fs.constants.F_OK);
-		await fs.promises.mkdir(dir, { recursive: true });
-		try {
-			await resize(pathToOriginalFile, pathToFile);
-		} catch (err) {
-			throw Error("ffmpeg error", { cause: err });
-		}
-	}
+    const pathToOriginalFile = path.resolve(path.join(ITEMS_DIR, id, file));
+    await fs.promises.access(pathToOriginalFile, fs.constants.F_OK);
+    await fs.promises.mkdir(dir, { recursive: true });
+    try {
+      await resize(pathToOriginalFile, pathToFile);
+    } catch (err) {
+      throw Error('ffmpeg error', { cause: err });
+    }
+  }
 
-	return pathToFile;
+  return pathToFile;
 }
 
 /**
@@ -208,15 +225,21 @@ async function getPathToPreviewFile(id, file) {
  * @returns {Promise<void>} A promise that resolves when all new IDs have been added.
  */
 async function addIds(count) {
-	const ids = (await fs.promises.readdir(ITEMS_DIR, { withFileTypes: true }))
-		.filter(file => file.isDirectory() && ID_SCHEMA.test(file.name))
-		.map(el => Number(el.name));
+  const ids = (await fs.promises.readdir(ITEMS_DIR, { withFileTypes: true }))
+    .filter((file) => file.isDirectory() && ID_SCHEMA.test(file.name))
+    .map((el) => Number(el.name));
 
-	const lastId = ids.reduce((max, cur) => cur > max ? cur : max, 1000);
+  const lastId = ids.reduce((max, cur) => (cur > max ? cur : max), 1000);
 
-	const newIds = Array.from({ length: count }, (_, i) => (lastId + 1 + i).toString());
+  const newIds = Array.from({ length: count }, (_, i) =>
+    (lastId + 1 + i).toString()
+  );
 
-	await Promise.all(newIds.map(newId => fs.promises.mkdir(path.join(ITEMS_DIR, newId), { recursive: true })));
+  await Promise.all(
+    newIds.map((newId) =>
+      fs.promises.mkdir(path.join(ITEMS_DIR, newId), { recursive: true })
+    )
+  );
 }
 
 /**
@@ -229,13 +252,13 @@ async function addIds(count) {
  * @throws {Error} If there is an error during the removal process.
  */
 async function removeFile(id, file) {
-	const pathToFile = path.join(ITEMS_DIR, id, file);
-	try {
-		await fs.promises.unlink(pathToFile);
-		// TODO: Implement the removal of cached preview files
-	} catch (err) {
-		if (err.code !== 'ENOENT') throw Error(err);
-	}
+  const pathToFile = path.join(ITEMS_DIR, id, file);
+  try {
+    await fs.promises.unlink(pathToFile);
+    // TODO: Implement the removal of cached preview files
+  } catch (err) {
+    if (err.code !== 'ENOENT') throw Error(err);
+  }
 }
 
 /**
@@ -249,23 +272,22 @@ async function removeFile(id, file) {
  * @throws {Error} If there is an error during the file writing process.
  */
 async function createWriteFileStream(id, file) {
-	const tempdir = os.tmpdir();
-	const tempfname = crypto.randomUUID();
+  const tempdir = os.tmpdir();
+  const tempfname = crypto.randomUUID();
 
-	const dir = path.join(ITEMS_DIR, id);
-	await fs.promises.mkdir(dir, { recursive: true });
-	const pathToFile = path.join(dir, file);
+  const dir = path.join(ITEMS_DIR, id);
+  await fs.promises.mkdir(dir, { recursive: true });
+  const pathToFile = path.join(dir, file);
 
-	const pathToTempFile = path.join(tempdir, tempfname);
-	const ws = fs.createWriteStream(pathToTempFile)
-		.on('finish', () => {
-			fs.copyFile(pathToTempFile, pathToFile, (err) => {
-				if (err) return console.error(err);
-				fs.unlink(pathToTempFile, (err) => console.error(err));
-			});
-		});
+  const pathToTempFile = path.join(tempdir, tempfname);
+  const ws = fs.createWriteStream(pathToTempFile).on('finish', () => {
+    fs.copyFile(pathToTempFile, pathToFile, (err) => {
+      if (err) return console.error(err);
+      fs.unlink(pathToTempFile, (err) => console.error(err));
+    });
+  });
 
-	return ws;
+  return ws;
 }
 /**
  * Writes information to a specified item's directory.
@@ -278,35 +300,35 @@ async function createWriteFileStream(id, file) {
  * @throws {Error} If there is an error during the writing process.
  */
 async function writeInfo(id, info) {
-	const timestamp = getCurrentDateTimeFormatted();
-	info.date = timestamp;
+  const timestamp = getCurrentDateTimeFormatted();
+  info.date = timestamp;
 
-	const dir = path.join(ITEMS_DIR, id);
-	const archiveDir = path.join(dir, INFO_ARCHIVE_DIR);
-	await fs.promises.mkdir(dir, { recursive: true });
-	const pathToFile = path.join(dir, INFO_FILE);
+  const dir = path.join(ITEMS_DIR, id);
+  const archiveDir = path.join(dir, INFO_ARCHIVE_DIR);
+  await fs.promises.mkdir(dir, { recursive: true });
+  const pathToFile = path.join(dir, INFO_FILE);
 
-	let infoOld;
-	try {
-		infoOld = JSON.parse(await fs.promises.readFile(pathToFile, 'utf8'));
-	} catch (err) {
-		if (err.code !== 'ENOENT') throw err;
-	};
+  let infoOld;
+  try {
+    infoOld = JSON.parse(await fs.promises.readFile(pathToFile, 'utf8'));
+  } catch (err) {
+    if (err.code !== 'ENOENT') throw err;
+  }
 
-	if (infoOld && areInfoObjectsEqual(infoOld, info)) return;
+  if (infoOld && areInfoObjectsEqual(infoOld, info)) return;
 
-	if (infoOld) {
-		// TODO analyze what will happen if multiple clients try to simultaneously save changes to info.json
-		const extname = path.extname(INFO_FILE);
-		const basename = path.basename(INFO_FILE, extname);
-		const archiveFileName = `${basename}.${timestamp}${extname}`;
-		const pathToArchiveFile = path.join(archiveDir, archiveFileName);
-		await fs.promises.mkdir(archiveDir, { recursive: true });
-		await fs.promises.copyFile(pathToFile, pathToArchiveFile);
-	}
+  if (infoOld) {
+    // TODO analyze what will happen if multiple clients try to simultaneously save changes to info.json
+    const extname = path.extname(INFO_FILE);
+    const basename = path.basename(INFO_FILE, extname);
+    const archiveFileName = `${basename}.${timestamp}${extname}`;
+    const pathToArchiveFile = path.join(archiveDir, archiveFileName);
+    await fs.promises.mkdir(archiveDir, { recursive: true });
+    await fs.promises.copyFile(pathToFile, pathToArchiveFile);
+  }
 
-	// TODO validate info
-	await writeFileAtomic(pathToFile, JSON.stringify(info, null, 4));
+  // TODO validate info
+  await writeFileAtomic(pathToFile, JSON.stringify(info, null, 4));
 }
 
 /**
@@ -316,22 +338,22 @@ async function writeInfo(id, info) {
  * @returns {Promise<Array<string>>} A promise that resolves to an array of sorted unique places.
  */
 async function getPlaces() {
-	const items = await getItems();
-	const places = [...new Set(items.map(item => item.place))];
-	return places.sort();
+  const items = await getItems();
+  const places = [...new Set(items.map((item) => item.place))];
+  return places.sort();
 }
 
 /**
  * Retrieves a sorted list of unique tags from the comments of all items.
- * 
+ *
  * @async
  * @function getTags
  * @returns {Promise<Array<string>>} A promise that resolves to an array of sorted unique tags.
  */
 async function getTags() {
-	const items = await getItems();
-	const tags = [...new Set(items.map(item => item.tags).flat())];
-	return tags.sort();
+  const items = await getItems();
+  const tags = [...new Set(items.map((item) => item.tags).flat())];
+  return tags.sort();
 }
 
 /**
@@ -343,24 +365,24 @@ async function getTags() {
  * @throws {Error} If the report file does not exist or cannot be parsed.
  */
 async function getReportData(id) {
-	const pathToReportFile = path.join(ITEMS_DIR, id, REPORT_FILE);
-	const data = await parseReport(pathToReportFile);
+  const pathToReportFile = path.join(ITEMS_DIR, id, REPORT_FILE);
+  const data = await parseReport(pathToReportFile);
 
-	return data;
+  return data;
 }
 
 module.exports = {
-	ITEMS_DIR,
-	isIdValid,
-	getItems,
-	getItem,
-	getPathToFile,
-	getPathToPreviewFile,
-	addIds,
-	removeFile,
-	createWriteFileStream,
-	writeInfo,
-	getPlaces,
-	getTags,
-	getReportData
-}
+  ITEMS_DIR,
+  isIdValid,
+  getItems,
+  getItem,
+  getPathToFile,
+  getPathToPreviewFile,
+  addIds,
+  removeFile,
+  createWriteFileStream,
+  writeInfo,
+  getPlaces,
+  getTags,
+  getReportData
+};

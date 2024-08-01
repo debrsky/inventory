@@ -23,13 +23,27 @@ const app = express();
 app.use(responseTime());
 
 if (process.env.NODE_ENV === 'development') {
-	// https://bytearcher.com/articles/refresh-changes-browser-express-livereload-nodemon/
-	const connectLivereload = require('connect-livereload');
-	const ignore = [/\.js(\?.*)?$/, /\.css(\?.*)?$/, /\.svg(\?.*)?$/, /\.ico(\?.*)?$/,
-		/\.woff(\?.*)?$/, /\.png(\?.*)?$/, /\.jpg(\?.*)?$/, /\.jpeg(\?.*)?$/, /\.gif(\?.*)?$/, /\.pdf(\?.*)?$/,
-		/\.json(\?.*)?$/, /\.webp(\?.*)?$/, /\.avif(\?.*)?$/, /\.mp4(\?.*)?$/, /\.zip(\?.*)?$/, /Report.htm$/
-	];
-	app.use(connectLivereload({ ignore }));
+  // https://bytearcher.com/articles/refresh-changes-browser-express-livereload-nodemon/
+  const connectLivereload = require('connect-livereload');
+  const ignore = [
+    /\.js(\?.*)?$/,
+    /\.css(\?.*)?$/,
+    /\.svg(\?.*)?$/,
+    /\.ico(\?.*)?$/,
+    /\.woff(\?.*)?$/,
+    /\.png(\?.*)?$/,
+    /\.jpg(\?.*)?$/,
+    /\.jpeg(\?.*)?$/,
+    /\.gif(\?.*)?$/,
+    /\.pdf(\?.*)?$/,
+    /\.json(\?.*)?$/,
+    /\.webp(\?.*)?$/,
+    /\.avif(\?.*)?$/,
+    /\.mp4(\?.*)?$/,
+    /\.zip(\?.*)?$/,
+    /Report.htm$/
+  ];
+  app.use(connectLivereload({ ignore }));
 }
 
 app.set('trust proxy', 1);
@@ -52,7 +66,11 @@ app.use(isLoggedIn);
 
 const downloadDir = config.downloadDir;
 fs.mkdirSync(downloadDir, { recursive: true });
-app.use('/download', express.static(downloadDir), serveIndex(downloadDir, { icons: true, view: 'details' }));
+app.use(
+  '/download',
+  express.static(downloadDir),
+  serveIndex(downloadDir, { icons: true, view: 'details' })
+);
 
 app.use('/', indexRouter);
 app.use('/users', usersRouter);
@@ -60,35 +78,34 @@ app.use('/inventory', inventoryRouter);
 app.use('/rooms', roomsRouter);
 
 app.get('/db.zip', async function (req, res, next) {
-	res.setHeader('Content-Type', 'application/zip');
-	res.setHeader('Content-Disposition', 'attachment; filename=db.zip');
-	try {
-		await db.zipArchive(res);
-	} catch (err) {
-		return next(err);
-	}
-})
-
+  res.setHeader('Content-Type', 'application/zip');
+  res.setHeader('Content-Disposition', 'attachment; filename=db.zip');
+  try {
+    await db.zipArchive(res);
+  } catch (err) {
+    return next(err);
+  }
+});
 
 // catch 404 and forward to error handler
 app.use(function (req, res, next) {
-	next(createError(404));
+  next(createError(404));
 });
 
 // error handler
 app.use(function (err, req, res, next) {
-	// set locals, only providing error in development
-	res.locals.message = err.message;
-	res.locals.error = req.app.get('env') === 'development' ? err : {};
+  // set locals, only providing error in development
+  res.locals.message = err.message;
+  res.locals.error = req.app.get('env') === 'development' ? err : {};
 
-	if (!err.statusCode) console.error(err);
+  if (!err.statusCode) console.error(err);
 
-	// render the error page
-	res.status(err.status || 500);
+  // render the error page
+  res.status(err.status || 500);
 
-	if (req.xhr) return res.send(err.message);
+  if (req.xhr) return res.send(err.message);
 
-	res.render('error');
+  res.render('error');
 });
 
 module.exports = app;

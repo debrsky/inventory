@@ -1,159 +1,159 @@
 extends ./layout
 
 block content
-	p Объект учета #[span= item.id]
+  p Объект учета #[span= item.id]
 
-	<!-- !{ JSON.stringify(item) } -->
-	<!-- !{ `mode = ${mode}` } -->
+  <!-- !{ JSON.stringify(item) } -->
+  <!-- !{ `mode = ${mode}` } -->
 
-	if mode === 'edit'
-		form.form.item(
-			action=`${baseUrl}/items/${item.id}`,
-			method="post",
-			enctype="multipart/form-data"
-		)
-			fieldset(style="max-width: 50ch")
-				.control 
-					label.control__container
-						span.control__title type
-						input.control__input(type="text", name="type", value=item.info.type)
-				.control 
-					label.control__container
-						span.control__title brand
-						input.control__input(type="text", name="brand", value=item.info.brand)
-				.control 
-					label.control__container
-						span.control__title model
-						input.control__input(type="text", name="model", value=item.info.model)
-				.control 
-					label.control__container
-						span.control__title place
-						input.control__input(type="text", name="place", value=item.info.place)
-				.control 
-					label.control__container
-						span.control__title comment
-						textarea.control__textarea(name="comment")= item.info.comment
+  if mode === 'edit'
+    form.form.item(
+      action=`${baseUrl}/items/${item.id}`,
+      method="post",
+      enctype="multipart/form-data"
+    )
+      fieldset(style="max-width: 50ch")
+        .control 
+          label.control__container
+            span.control__title type
+            input.control__input(type="text", name="type", value=item.info.type)
+        .control 
+          label.control__container
+            span.control__title brand
+            input.control__input(type="text", name="brand", value=item.info.brand)
+        .control 
+          label.control__container
+            span.control__title model
+            input.control__input(type="text", name="model", value=item.info.model)
+        .control 
+          label.control__container
+            span.control__title place
+            input.control__input(type="text", name="place", value=item.info.place)
+        .control 
+          label.control__container
+            span.control__title comment
+            textarea.control__textarea(name="comment")= item.info.comment
 
-			-
-				const pictures = [];
-				const docs = [];
-				for (const file of item.files) {
-					if (['jpg', 'png', 'webp', 'avif'].some(ext => file.endsWith(ext))) {
-						pictures.push(file); 
-					} else {
-						docs.push(file);
-					}
-				}
+      -
+        const pictures = [];
+        const docs = [];
+        for (const file of item.files) {
+          if (['jpg', 'png', 'webp', 'avif'].some(ext => file.endsWith(ext))) {
+            pictures.push(file); 
+          } else {
+            docs.push(file);
+          }
+        }
 
-			.control(style="width: max-content") 
-				.control__title(style="width: max-content") Прикрепить еще файл
-				label.control__container
-					input.control__file(type="file", name="file", multiple="multiple")
+      .control(style="width: max-content") 
+        .control__title(style="width: max-content") Прикрепить еще файл
+        label.control__container
+          input.control__file(type="file", name="file", multiple="multiple")
 
-			div(style="width: max-content; margin: 1em 0")
-				label
-					input#allow-remove(type="checkbox", name="")
-					| &nbsp;
-					span Разрешить удалять файлы
-					script.
-						const checkboxEl = document.getElementById("allow-remove");
-						checkboxEl.addEventListener("change", (event) => {
-							for (const elId of ["pictures", "files"]) {
-								const el = document.getElementById(elId);
-								if (el.hasAttribute("disabled")) {
-									el.removeAttribute("disabled");
-								} else {
-									const picElements = el.querySelectorAll("input:checked");
-									picElements.forEach((el) => {
-										el.checked = false;
-									});
-									el.setAttribute("disabled", "disabled");
-								}
-							}
-						});
+      div(style="width: max-content; margin: 1em 0")
+        label
+          input#allow-remove(type="checkbox", name="")
+          | &nbsp;
+          span Разрешить удалять файлы
+          script.
+            const checkboxEl = document.getElementById("allow-remove");
+            checkboxEl.addEventListener("change", (event) => {
+              for (const elId of ["pictures", "files"]) {
+                const el = document.getElementById(elId);
+                if (el.hasAttribute("disabled")) {
+                  el.removeAttribute("disabled");
+                } else {
+                  const picElements = el.querySelectorAll("input:checked");
+                  picElements.forEach((el) => {
+                    el.checked = false;
+                  });
+                  el.setAttribute("disabled", "disabled");
+                }
+              }
+            });
 
-			fieldset#pictures(
-				style="max-width: 100%; width: fit-content; margin-top: 0.5em",
-				disabled="disabled"
-			)
-				ul.item__pictures 
-					each picture in pictures 
-						li
-							figure(style="margin: 0")
-								a(href=`${baseUrl}/items/${item.id}/${picture}`)
-									img(
-										src=`${baseUrl}/items/${item.id}/preview/${picture}`,
-										width="100"
-									)
-								figcaption.control
-									label.control__container
-										input.control__checkbox(
-											type="checkbox",
-											name="remove-file[]",
-											value=picture
-										)
-										span.control__title удалить
+      fieldset#pictures(
+        style="max-width: 100%; width: fit-content; margin-top: 0.5em",
+        disabled="disabled"
+      )
+        ul.item__pictures 
+          each picture in pictures 
+            li
+              figure(style="margin: 0")
+                a(href=`${baseUrl}/items/${item.id}/${picture}`)
+                  img(
+                    src=`${baseUrl}/items/${item.id}/preview/${picture}`,
+                    width="100"
+                  )
+                figcaption.control
+                  label.control__container
+                    input.control__checkbox(
+                      type="checkbox",
+                      name="remove-file[]",
+                      value=picture
+                    )
+                    span.control__title удалить
 
-			fieldset#files(
-				style="width: fit-content; margin-top: 0.5em",
-				disabled="disabled"
-			)
-				table.table.item__docs 
-					tbody
-						each doc of docs
-							tr
-								td: a(href=`./${item.id}/${doc}`)= doc
-								td
-									label.control__container
-										input.control__checkbox(
-											type="checkbox",
-											name="remove-file[]",
-											value=doc
-										)
-										span.control__title удалить
+      fieldset#files(
+        style="width: fit-content; margin-top: 0.5em",
+        disabled="disabled"
+      )
+        table.table.item__docs 
+          tbody
+            each doc of docs
+              tr
+                td: a(href=`./${item.id}/${doc}`)= doc
+                td
+                  label.control__container
+                    input.control__checkbox(
+                      type="checkbox",
+                      name="remove-file[]",
+                      value=doc
+                    )
+                    span.control__title удалить
 
-			div(style="margin: 1em 0; padding: 0.5em 0; border-top: 1px solid silver"): button(
-				type="submit"
-			) Отправить
+      div(style="margin: 1em 0; padding: 0.5em 0; border-top: 1px solid silver"): button(
+        type="submit"
+      ) Отправить
 
-	else
-		article.tools-panel 
-			a.btn-edit(href=`${baseUrl}/items/${item.id}/edit`)
-		article.item-card 
-			table.params-list 
-				tbody
-					each value, name in item.info 
-						tr 
-							td= name
-							td= value
+  else
+    article.tools-panel 
+      a.btn-edit(href=`${baseUrl}/items/${item.id}/edit`)
+    article.item-card 
+      table.params-list 
+        tbody
+          each value, name in item.info 
+            tr 
+              td= name
+              td= value
 
-		if item.pc
-			article 
-				table.params-list 
-					caption Computer
-					tbody
-						each value, name in item.pc
-							tr 
-								td= name
-								td !{Array.isArray(value) ? value.join('<br>') : value}
-				
+    if item.pc
+      article 
+        table.params-list 
+          caption Computer
+          tbody
+            each value, name in item.pc
+              tr 
+                td= name
+                td !{Array.isArray(value) ? value.join('<br>') : value}
+        
 
-		-
-			const pictures = [];
-			const docs = [];
-			for (const file of item.files) {
-				if (['jpg', 'png', 'webp', 'avif'].some(ext => file.endsWith(ext))) {
-					pictures.push(file); 
-				} else {
-					docs.push(file);
-				}
-			}
-		.item
-			ul.item__pictures 
-				each picture in pictures 
-					li: a(href=`${baseUrl}/items/${item.id}/${picture}`)
-						img(src=`${baseUrl}/items/${item.id}/preview/${picture}`, width="100")
+    -
+      const pictures = [];
+      const docs = [];
+      for (const file of item.files) {
+        if (['jpg', 'png', 'webp', 'avif'].some(ext => file.endsWith(ext))) {
+          pictures.push(file); 
+        } else {
+          docs.push(file);
+        }
+      }
+    .item
+      ul.item__pictures 
+        each picture in pictures 
+          li: a(href=`${baseUrl}/items/${item.id}/${picture}`)
+            img(src=`${baseUrl}/items/${item.id}/preview/${picture}`, width="100")
 
-			ul.item__docs 
-				each doc of docs
-					li: a(href=`${baseUrl}/items/${item.id}/${doc}`)= doc
+      ul.item__docs 
+        each doc of docs
+          li: a(href=`${baseUrl}/items/${item.id}/${doc}`)= doc
