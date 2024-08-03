@@ -148,7 +148,7 @@ async function getItem(id) {
 
   let pc;
 
-  if (['pc', 'aio', 'laptop', 'nbk'].includes(info.type.toLowerCase())) {
+  if (['pc', 'aio', 'laptop', 'nbk', 'mbl', 'monoblock'].includes(info.type.toLowerCase())) {
     const pcPath = path.join(ITEMS_DIR, id, PC_FILE);
     try {
       pc = { cpu: '', ram: '', mb: '', drives: [] };
