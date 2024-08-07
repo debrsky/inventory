@@ -76,7 +76,7 @@ router.post('/items/:id', async function (req, res, next) {
       const ws = await db.items.createWriteFileStream(id, filename);
       file.pipe(ws);
     } else {
-      file.on('data', () => {}); // no file
+      file.on('data', () => { }); // no file
     }
   });
   bb.on('field', (name, val, info) => {
@@ -177,5 +177,13 @@ router.get('/items/:id/preview/:file', async function (req, res, next) {
     return next(err);
   }
 });
+
+router.get('/aida64', async (req, res, next) => {
+  res.writeHead(200, {
+    'Content-Type': 'text/plain; charset=utf-8'
+  });
+  await db.items.aida64ParseAll(res).catch(err => res.write(`Error: ${err.code}`));
+  res.end();
+})
 
 module.exports = router;

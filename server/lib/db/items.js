@@ -16,6 +16,8 @@ const INFO_ARCHIVE_DIR = 'ARCHIVE';
 const PC_FILE = 'pc.json';
 const REPORT_FILE = 'Report.htm';
 
+const COMP_TYPES = ['pc', 'aio', 'laptop', 'nbk', 'mbl', 'monoblock'];
+
 const timezone = Intl.DateTimeFormat().resolvedOptions().timeZone;
 console.log(`current timezone: ${timezone}`);
 
@@ -148,7 +150,7 @@ async function getItem(id) {
 
   let pc;
 
-  if (['pc', 'aio', 'laptop', 'nbk', 'mbl', 'monoblock'].includes(info.type.toLowerCase())) {
+  if (COMP_TYPES.includes(info.type.toLowerCase())) {
     const pcPath = path.join(ITEMS_DIR, id, PC_FILE);
     try {
       pc = { cpu: '', ram: '', mb: '', drives: [] };
@@ -371,6 +373,18 @@ async function getReportData(id) {
   return data;
 }
 
+async function aida64ParseAll(res) {
+  const items = await getItems();
+  const comps = items.filter(item => COMP_TYPES.includes(item.type.toLowerCase()));
+
+  await Promise.all(comps.map(async (comp) => {
+    const compFullInfo = await getItem(comp.id);
+    if (res) {
+      res.write(JSON.stringify(compFullInfo, null, 2) + '\n');
+    }
+  }));
+}
+
 module.exports = {
   ITEMS_DIR,
   isIdValid,
@@ -384,5 +398,6 @@ module.exports = {
   writeInfo,
   getPlaces,
   getTags,
-  getReportData
+  getReportData,
+  aida64ParseAll
 };
