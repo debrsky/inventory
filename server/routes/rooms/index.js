@@ -49,7 +49,6 @@ router.get(/\.[a-zA-Z0-9]+$/, async (req, res, next) => {
 
     stream.pipe(res);
   } catch (err) {
-    console.log('file error');
     if (err.code === 'ENOENT') return next();
     return next(err);
   }
