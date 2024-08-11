@@ -1,0 +1,13 @@
+extends ../layout
+
+block content
+  h2.room__title= room.path
+  ul.room__image-list
+    - const images = room.files.filter(file => IMAGE_EXTENSIONS.some(ext => file.endsWith(`.${ext}`)));
+    each image in images 
+      li.room__image 
+        - const imgUrl = image;
+        a(href=`${baseUrl}/${encodeURIComponent(`${room.path}/${image}`)}`, target="_blank")
+          img.room__preview-img(src=`${baseUrl}/preview/${encodeURIComponent(`${room.path}/${image}`)}`, loading="lazy", alt="", width="150", height="150")
+
+  pre= JSON.stringify(room, null, 2)

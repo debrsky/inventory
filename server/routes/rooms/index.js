@@ -6,9 +6,9 @@ send.mime.define({
 const express = require('express');
 const router = express.Router();
 
-const db = require('../../lib/db/index.js');
+const IMAGE_EXTENSIONS = ['jpg', 'png', 'webp', 'avif'];
 
-const ROOMS_URL_PREFIX = '/ROOMS/';
+const db = require('../../lib/db/index.js');
 
 router.get('/', async (req, res) => {
   const rooms = await db.rooms.getRoomsStructure();
@@ -16,8 +16,23 @@ router.get('/', async (req, res) => {
   res.render('rooms/index', { baseUrl: req.baseUrl, rooms });
 });
 
-router.get('/*', async (req, res, next) => {
-  const fileUrl = req.params[0];
+
+router.get(/^(?!.*\.[a-zA-Z0-9]+$).*/, async (req, res, next) => {
+  const roomPath = decodeURIComponent(req.url).slice(1);
+  let room;
+  try {
+    room = await db.rooms.getRoom(roomPath);
+  } catch (err) {
+    if (err.code === 'ENOENT') return next();
+    return next(err);
+  }
+
+  res.render('rooms/room', { baseUrl: req.baseUrl, room, IMAGE_EXTENSIONS });
+
+});
+
+router.get(/\.[a-zA-Z0-9]+$/, async (req, res, next) => {
+  const fileUrl = decodeURIComponent(req.url);
 
   try {
     const pathToFile = await db.rooms.getPathToFile(fileUrl);
@@ -29,6 +44,7 @@ router.get('/*', async (req, res, next) => {
 
     stream.pipe(res);
   } catch (err) {
+    console.log('file error');
     if (err.code === 'ENOENT') return next();
     return next(err);
   }
@@ -36,18 +52,17 @@ router.get('/*', async (req, res, next) => {
 
 router.get('/preview/*', async (req, res, next) => {
   const fileUrl = req.params[0];
-  if (!fileUrl.startsWith(ROOMS_URL_PREFIX)) return next();
 
   const fileUrlLowerCase = fileUrl.toLowerCase();
   if (
-    !['jpg', 'jpeg', 'png', 'avif', 'webp'].some((ext) =>
+    !IMAGE_EXTENSIONS.some((ext) =>
       fileUrlLowerCase.endsWith(`.${ext}`)
     )
   ) {
     return next();
   }
 
-  const pathToFile = fileUrl.slice(ROOMS_URL_PREFIX.length);
+  const pathToFile = fileUrl;
 
   try {
     const pathToPreviewFile = await db.rooms.getPathToPreviewFile(pathToFile);

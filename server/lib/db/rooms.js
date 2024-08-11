@@ -5,12 +5,13 @@ const path = require('path');
 const DB_DIR = config.dbDir;
 const ROOMS_DIR = path.join(DB_DIR, 'ROOMS');
 const ROOMS_CACHE_DIR = path.join(DB_DIR, 'CACHE/ROOMS');
+const INFO_FILE = 'info.json';
 
 const resize = require('../utils/ffmpeg.js');
 
 async function getRoomsStructure() {
   function preparePath(path) {
-    return path.slice(DB_DIR.length).replace(/\\/g, '/');
+    return path.slice(ROOMS_DIR.length).replace(/\\/g, '/');
   }
 
   /**
@@ -48,16 +49,25 @@ async function getRoomsStructure() {
 
   return structure;
 }
-
 /**
- * Retrieves the path to a preview file for a specific item.
- * If the preview file does not exist, it attempts to create it from the original file.
+ * Retrieves the path to a preview file for a given original file.
+ * If the preview file does not already exist, it attempts to create it
+ * by resizing the original file into the preview format.
+ *
  * @async
  * @function getPathToPreviewFile
- * @param {string} id - The ID of the item.
- * @param {string} file - The name of the file to retrieve.
- * @returns {Promise<string>} The resolved path to the preview file.
- * @throws {Error} If the file does not exist or if there is an error during resizing.
+ * @param {string} file - The name or path of the original file for which to generate the preview.
+ * @returns {Promise<string>} - A promise that resolves to the path of the preview file.
+ * @throws {Error} - Throws an error if the original file does not exist or if an error occurs during the resizing process.
+ *
+ * @example
+ * getPathToPreviewFile('example.jpg')
+ *   .then(previewPath => {
+ *     console.log('Preview generated at:', previewPath);
+ *   })
+ *   .catch(error => {
+ *     console.error('Error generating preview:', error);
+ *   });
  */
 async function getPathToPreviewFile(file) {
   const pathToFile = path.resolve(path.join(ROOMS_CACHE_DIR, file));
@@ -80,15 +90,18 @@ async function getPathToPreviewFile(file) {
 
   return pathToFile;
 }
-
 /**
- * Retrieves the path to a specific file within an item's directory.
+ * Retrieves the resolved file path for a given file within the rooms directory.
+ *
+ * This function constructs the absolute path based on the provided filename,
+ * checks if the file exists, and returns the path in a normalized format 
+ * (using forward slashes).
+ *
  * @async
- * @function getPathToFile
- * @param {string} id - The ID of the item.
- * @param {string} file - The name of the file to retrieve.
- * @returns {Promise<string>} The resolved path to the file.
- * @throws {Error} If the file does not exist.
+ * @param {string} file - The name of the file for which to retrieve the path.
+ * @returns {Promise<string>} The absolute path to the specified file.
+ * @throws {Error} Will throw an error if the file does not exist or if 
+ *                 there are issues accessing the file.
  */
 async function getPathToFile(file) {
   const pathToFile = path
@@ -98,9 +111,35 @@ async function getPathToFile(file) {
   return pathToFile;
 }
 
+async function getRoom(room) {
+  const pathToRoom = path.resolve(path.join(ROOMS_DIR, room));
+  const pathToInfo = path.resolve(path.join(pathToRoom, INFO_FILE));
+
+  await fs.promises.access(pathToRoom);
+
+  const files = (
+    await fs.promises.readdir(pathToRoom, { withFileTypes: true })
+  )
+    .filter((file) => !file.isDirectory())
+    .map((el) => el.name);
+
+  let info;
+  try {
+    info = JSON.parse(await fs.promises.readFile(pathToInfo, 'utf8'));
+  } catch (err) {
+    if (err.code !== 'ENOENT') throw err;
+
+    info = null;
+  }
+
+  return { path: room, info, files };
+
+}
+
 module.exports = {
   ROOMS_DIR,
   getRoomsStructure,
   getPathToPreviewFile,
-  getPathToFile
+  getPathToFile,
+  getRoom
 };
