@@ -10,6 +10,11 @@ const router = express.Router();
 
 const db = require('../../lib/db/index.js');
 
+router.use((req, res, next) => {
+  res.locals.baseUrl = req.baseUrl;
+  next();
+})
+
 router.get('/', async function (req, res, next) {
   try {
     const items = (await db.items.getItems()).sort((a, b) => {
@@ -22,7 +27,6 @@ router.get('/', async function (req, res, next) {
 
     res.render('inventory/index', {
       title: 'Инвентаризация',
-      baseUrl: req.baseUrl,
       items,
       places,
       tags
@@ -51,7 +55,6 @@ router.get(['/items/:id', '/items/:id/edit'], async function (req, res, next) {
     const item = await db.items.getItem(id);
     res.render('inventory/item', {
       title: `${item.id} Инвентаризация`,
-      baseUrl: req.baseUrl,
       mode,
       item
     });

@@ -10,10 +10,15 @@ const IMAGE_EXTENSIONS = ['jpg', 'png', 'webp', 'avif'];
 
 const db = require('../../lib/db/index.js');
 
+router.use((req, res, next) => {
+  res.locals.baseUrl = req.baseUrl;
+  next();
+})
+
 router.get('/', async (req, res) => {
   const rooms = await db.rooms.getRoomsStructure();
 
-  res.render('rooms/index', { baseUrl: req.baseUrl, rooms });
+  res.render('rooms/index', { rooms });
 });
 
 
@@ -27,7 +32,7 @@ router.get(/^(?!.*\.[a-zA-Z0-9]+$).*/, async (req, res, next) => {
     return next(err);
   }
 
-  res.render('rooms/room', { baseUrl: req.baseUrl, room, IMAGE_EXTENSIONS });
+  res.render('rooms/room', { room, IMAGE_EXTENSIONS });
 
 });
 
