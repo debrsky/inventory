@@ -109,7 +109,7 @@ async function getItems() {
     )
   ).map((res, idx) => {
     if (res.status === 'rejected' && res.reason.code !== 'ENOENT')
-      throw Error(res.reason);
+      throw res.reason;
     if (res.status === 'rejected') return { id: ids[idx] };
     // res.status === "fulfilled"
 
@@ -145,7 +145,7 @@ async function getItem(id) {
       JSON.parse(await fs.promises.readFile(infoPath, 'utf8'))
     );
   } catch (err) {
-    if (err.code !== 'ENOENT') throw Error(err);
+    if (err.code !== 'ENOENT') throw err;
   }
 
   let pc;
@@ -156,13 +156,13 @@ async function getItem(id) {
       pc = { cpu: '', ram: '', mb: '', drives: [] };
       Object.assign(pc, JSON.parse(await fs.promises.readFile(pcPath, 'utf8')));
     } catch (err) {
-      if (err.code !== 'ENOENT') throw Error(err);
+      if (err.code !== 'ENOENT') throw err;
 
       try {
         pc = await getReportData(id);
         await writeFileAtomic(pcPath, JSON.stringify(pc));
       } catch (err) {
-        if (err.code !== 'ENOENT') throw Error(err);
+        if (err.code !== 'ENOENT') throw err;
       }
     }
   }
@@ -204,7 +204,7 @@ async function getPathToPreviewFile(id, file) {
   try {
     await fs.promises.access(pathToFile, fs.constants.F_OK);
   } catch (err) {
-    if (err.code !== 'ENOENT') throw Error(err);
+    if (err.code !== 'ENOENT') throw err;
 
     const pathToOriginalFile = path.resolve(path.join(ITEMS_DIR, id, file));
     await fs.promises.access(pathToOriginalFile, fs.constants.F_OK);
@@ -259,7 +259,7 @@ async function removeFile(id, file) {
     await fs.promises.unlink(pathToFile);
     // TODO: Implement the removal of cached preview files
   } catch (err) {
-    if (err.code !== 'ENOENT') throw Error(err);
+    if (err.code !== 'ENOENT') throw err;
   }
 }
 
