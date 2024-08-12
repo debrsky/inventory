@@ -21,11 +21,6 @@ router.get('/', async (req, res) => {
   res.render('rooms/index', { rooms });
 });
 
-router.get('/:path/:file', (req, res, next) => {
-  console.log('file', req.params);
-  next();
-})
-
 router.get('/:path', async (req, res, next) => {
   const roomPath = req.params.path;
   let room;
@@ -37,7 +32,6 @@ router.get('/:path', async (req, res, next) => {
   }
 
   res.render('rooms/room', { room, IMAGE_EXTENSIONS });
-
 });
 
 router.get('/:path/:file', async (req, res, next) => {
