@@ -1,3 +1,7 @@
+const config = require('../../../config.js');
+
+const PICTURE_FILE_TYPES = config.pictureFileTypes;
+
 const send = require('send');
 send.mime.define({
   'image/avif': ['avif']
@@ -6,12 +10,11 @@ send.mime.define({
 const express = require('express');
 const router = express.Router();
 
-const IMAGE_EXTENSIONS = ['jpg', 'png', 'webp', 'avif'];
-
 const db = require('../../lib/db/index.js');
 
 router.use((req, res, next) => {
   res.locals.baseUrl = req.baseUrl;
+  res.locals.PICTURE_FILE_TYPES = PICTURE_FILE_TYPES;
   next();
 })
 
@@ -21,7 +24,9 @@ router.get('/', async (req, res) => {
   res.render('rooms/index', { rooms });
 });
 
-router.get('/:path', async (req, res, next) => {
+router.get(['/:path', '/:path/edit'], async (req, res, next) => {
+  const mode = req.url.endsWith('/edit') ? 'edit' : 'view';
+
   const roomPath = req.params.path;
   let room;
   try {
@@ -31,7 +36,7 @@ router.get('/:path', async (req, res, next) => {
     return next(err);
   }
 
-  res.render('rooms/room', { room, IMAGE_EXTENSIONS });
+  res.render('rooms/room', { room });
 });
 
 router.get('/:path/:file', async (req, res, next) => {
@@ -59,7 +64,7 @@ router.get('/preview/:path/:file', async (req, res, next) => {
 
   const fileLowerCase = req.params.file.toLowerCase();
   if (
-    !IMAGE_EXTENSIONS.some((ext) =>
+    !PICTURE_FILE_TYPES.some((ext) =>
       fileLowerCase.endsWith(`.${ext}`)
     )
   ) {
