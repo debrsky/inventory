@@ -21,9 +21,13 @@ router.get('/', async (req, res) => {
   res.render('rooms/index', { rooms });
 });
 
+router.get('/:path/:file', (req, res, next) => {
+  console.log('file', req.params);
+  next();
+})
 
-router.get(/^(?!.*\.[a-zA-Z0-9]+$).*/, async (req, res, next) => {
-  const roomPath = decodeURIComponent(req.url).slice(1);
+router.get('/:path', async (req, res, next) => {
+  const roomPath = req.params.path;
   let room;
   try {
     room = await db.rooms.getRoom(roomPath);
@@ -36,8 +40,10 @@ router.get(/^(?!.*\.[a-zA-Z0-9]+$).*/, async (req, res, next) => {
 
 });
 
-router.get(/\.[a-zA-Z0-9]+$/, async (req, res, next) => {
-  const fileUrl = decodeURIComponent(req.url);
+router.get('/:path/:file', async (req, res, next) => {
+  if (!/\.[a-zA-Z0-9]+$/.test(req.params.file)) return next();
+
+  const fileUrl = `${req.params.path}/${req.params.file}`;
 
   try {
     const pathToFile = await db.rooms.getPathToFile(fileUrl);
@@ -54,13 +60,13 @@ router.get(/\.[a-zA-Z0-9]+$/, async (req, res, next) => {
   }
 });
 
-router.get('/preview/*', async (req, res, next) => {
-  const fileUrl = req.params[0];
+router.get('/preview/:path/:file', async (req, res, next) => {
+  const fileUrl = `${req.params.path}/${req.params.file}`;
 
-  const fileUrlLowerCase = fileUrl.toLowerCase();
+  const fileLowerCase = req.params.file.toLowerCase();
   if (
     !IMAGE_EXTENSIONS.some((ext) =>
-      fileUrlLowerCase.endsWith(`.${ext}`)
+      fileLowerCase.endsWith(`.${ext}`)
     )
   ) {
     return next();
