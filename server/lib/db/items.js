@@ -375,14 +375,18 @@ async function getReportData(id) {
 
 async function aida64ParseAll(res) {
   const items = await getItems();
-  const comps = items.filter(item => COMP_TYPES.includes(item.type.toLowerCase()));
+  const comps = items.filter(item => COMP_TYPES.includes(item.type?.toLowerCase()));
 
-  await Promise.all(comps.map(async (comp) => {
+  for (let i = 0; i < comps.length; ++i) {
+    res.write(`${i}/${comps.length}\n`);
+    const comp = comps[i];
+    const pcPath = path.join(ITEMS_DIR, comp.id, PC_FILE);
+    await fs.promises.unlink(pcPath).catch(err => res.write(err.stack));
     const compFullInfo = await getItem(comp.id);
     if (res) {
       res.write(JSON.stringify(compFullInfo, null, 2) + '\n');
     }
-  }));
+  }
 }
 
 module.exports = {

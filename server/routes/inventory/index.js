@@ -183,9 +183,10 @@ router.get('/items/:id/preview/:file', async function (req, res, next) {
 
 router.get('/aida64', async (req, res, next) => {
   res.writeHead(200, {
-    'Content-Type': 'text/plain; charset=utf-8'
+    'Content-Type': 'text/plain; charset=utf-8',
+    'Transfer-Encoding': 'chunked'
   });
-  await db.items.aida64ParseAll(res).catch(err => res.write(`Error: ${err.code}`));
+  await db.items.aida64ParseAll(res).catch(err => res.write(`${err.stack}`));
   res.end();
 })
 

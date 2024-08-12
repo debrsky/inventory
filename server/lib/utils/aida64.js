@@ -40,7 +40,11 @@ async function parseReport(pathToReportFile) {
     .text()
     .trim();
 
-  return { os, cpu, ram, mb, drives };
+  const cpuid = $('table:has(a[name="cpuid"]) + table td:contains("Имя ЦП CPUID") + td').text().trim();
+
+  const result = { os, cpu, cpuid, ram, mb, drives };
+
+  return result;
 }
 
 module.exports = {
