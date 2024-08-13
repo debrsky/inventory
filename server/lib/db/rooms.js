@@ -162,15 +162,16 @@ async function writeInfo(roomPath, info) {
 
   if (infoOld && areInfoObjectsEqual(infoOld, info)) return;
 
-  if (infoOld) {
-    // TODO analyze what will happen if multiple clients try to simultaneously save changes to info.json
-    const extname = path.extname(INFO_FILE);
-    const basename = path.basename(INFO_FILE, extname);
-    const archiveFileName = `${basename}.${timestamp}${extname}`;
-    const pathToArchiveFile = path.join(archiveDir, archiveFileName);
-    await fs.promises.mkdir(archiveDir, { recursive: true });
-    await fs.promises.copyFile(pathToFile, pathToArchiveFile);
-  }
+  //TODO Come up with a method to store the archive
+  // if (infoOld) {
+  //   // TODO analyze what will happen if multiple clients try to simultaneously save changes to info.json
+  //   const extname = path.extname(INFO_FILE);
+  //   const basename = path.basename(INFO_FILE, extname);
+  //   const archiveFileName = `${basename}.${timestamp}${extname}`;
+  //   const pathToArchiveFile = path.join(archiveDir, archiveFileName);
+  //   await fs.promises.mkdir(archiveDir, { recursive: true });
+  //   await fs.promises.copyFile(pathToFile, pathToArchiveFile);
+  // }
 
   await writeFileAtomic(pathToFile, JSON.stringify(info, null, 4));
 }
