@@ -36,7 +36,32 @@ router.get(['/:path', '/:path/edit'], async (req, res, next) => {
     return next(err);
   }
 
-  res.render('rooms/room', { room });
+  res.render('rooms/room', { room, mode });
+});
+
+router.post('/:path', async (req, res, next) => {
+  console.log({ body: req.body });
+
+  const roomPath = req.params.path;
+  let room;
+  try {
+    room = await db.rooms.getRoom(roomPath);
+  } catch (err) {
+    if (err.code === 'ENOENT') return next();
+    return next(err);
+  }
+
+  const info = room.info ?? {};
+  Object.assign(info, req.body);
+  console.log({ info });
+
+  try {
+    await db.rooms.writeInfo(roomPath, info);
+  } catch (err) {
+    return next(err);
+  }
+
+  res.redirect(req.originalUrl);
 });
 
 router.get('/:path/:file', async (req, res, next) => {

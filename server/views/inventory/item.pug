@@ -7,6 +7,9 @@ block content
   <!-- !{ `mode = ${mode}` } -->
 
   if mode === 'edit'
+    article.tools-panel 
+      a.btn-back(href=`${baseUrl}/items/${item.id}`)
+
     form.form.item(
       action=`${baseUrl}/items/${item.id}`,
       method="post",
@@ -112,9 +115,10 @@ block content
                     )
                     span.control__title удалить
 
-      div(style="margin: 1em 0; padding: 0.5em 0; border-top: 1px solid silver"): button(
-        type="submit"
-      ) Отправить
+      div(style="margin: 1em 0; padding: 0.5em 0; border-top: 1px solid silver") 
+        button(
+          type="submit"
+        ) Отправить
 
   else
     article.tools-panel 

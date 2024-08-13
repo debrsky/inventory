@@ -1,13 +1,35 @@
 extends ../layout
 
 block content
-  h2.room__title= room.path
-  ul.room__image-list
-    - const images = room.files.filter(file => PICTURE_FILE_TYPES.some(ext => file.endsWith(`.${ext}`)));
-    each image in images 
-      li.room__image 
-        - const imgUrl = image;
-        a(href=`${baseUrl}/${encodeURIComponent(room.path)}/${image}`, target="_blank")
-          img.room__preview-img(src=`${baseUrl}/preview/${encodeURIComponent(room.path)}/${image}`, loading="lazy", alt="", width="150", height="150")
+  main(style="padding-inline: 2ch;")
+    h2.room__title= room.path
 
-  pre= JSON.stringify(room, null, 2)
+    article.tools-panel 
+      if mode === 'edit'
+        a.btn-back(href=`${baseUrl}/${encodeURIComponent(room.path)}`)
+      else
+        a.btn-edit(href=`${baseUrl}/${encodeURIComponent(room.path)}/edit`)
+
+    ul.room__image-list
+      - const images = room.files.filter(file => PICTURE_FILE_TYPES.some(ext => file.endsWith(`.${ext}`)));
+      each image in images 
+        li.room__image 
+          - const imgUrl = image;
+          a(href=`${baseUrl}/${encodeURIComponent(room.path)}/${image}`, target="_blank")
+            img.room__preview-img(src=`${baseUrl}/preview/${encodeURIComponent(room.path)}/${image}`, loading="lazy", alt="", width="150", height="150")
+
+    if mode === 'edit'
+      form.form(
+        action=`${baseUrl}/${encodeURIComponent(room.path)}`,
+        method="post"
+      ) 
+        .control 
+          label.control__container
+            span.control__title comment
+            textarea.control__textarea(name="comment")= room.info ? room.info.comment : ''
+        .control 
+          button(
+            type="submit"
+          ) Отправить          
+
+    pre= JSON.stringify(room, null, 2)

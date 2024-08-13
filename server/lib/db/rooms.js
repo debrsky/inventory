@@ -2,10 +2,18 @@ const config = require('../../../config.js');
 const fs = require('fs');
 const path = require('path');
 
+const writeFileAtomic = require('write-file-atomic');
+
+
 const DB_DIR = config.dbDir;
 const ROOMS_DIR = path.join(DB_DIR, 'ROOMS');
 const ROOMS_CACHE_DIR = path.join(DB_DIR, 'CACHE/ROOMS');
 const INFO_FILE = 'info.json';
+const INFO_ARCHIVE_DIR = 'ARCHIVE';
+
+
+const { getCurrentDateTimeFormatted } = require('../utils/helpers.js');
+const { areInfoObjectsEqual } = require('../utils/helpers.js');
 
 const resize = require('../utils/ffmpeg.js');
 
@@ -136,10 +144,43 @@ async function getRoom(room) {
 
 }
 
+async function writeInfo(roomPath, info) {
+  const timestamp = getCurrentDateTimeFormatted();
+  info.date = timestamp;
+
+  const dir = path.join(ROOMS_DIR, roomPath);
+  const archiveDir = path.join(dir, INFO_ARCHIVE_DIR);
+  await fs.promises.mkdir(dir, { recursive: true });
+  const pathToFile = path.join(dir, INFO_FILE);
+
+  let infoOld;
+  try {
+    infoOld = JSON.parse(await fs.promises.readFile(pathToFile, 'utf8'));
+  } catch (err) {
+    if (err.code !== 'ENOENT') throw err;
+  }
+
+  if (infoOld && areInfoObjectsEqual(infoOld, info)) return;
+
+  if (infoOld) {
+    // TODO analyze what will happen if multiple clients try to simultaneously save changes to info.json
+    const extname = path.extname(INFO_FILE);
+    const basename = path.basename(INFO_FILE, extname);
+    const archiveFileName = `${basename}.${timestamp}${extname}`;
+    const pathToArchiveFile = path.join(archiveDir, archiveFileName);
+    await fs.promises.mkdir(archiveDir, { recursive: true });
+    await fs.promises.copyFile(pathToFile, pathToArchiveFile);
+  }
+
+  await writeFileAtomic(pathToFile, JSON.stringify(info, null, 4));
+}
+
+
 module.exports = {
   ROOMS_DIR,
   getRoomsStructure,
   getPathToPreviewFile,
   getPathToFile,
-  getRoom
+  getRoom,
+  writeInfo
 };
