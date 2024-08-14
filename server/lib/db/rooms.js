@@ -11,7 +11,6 @@ const ROOMS_CACHE_DIR = path.join(DB_DIR, 'CACHE/ROOMS');
 const INFO_FILE = 'info.json';
 const INFO_ARCHIVE_DIR = 'ARCHIVE';
 
-
 const { getCurrentDateTimeFormatted } = require('../utils/helpers.js');
 const { areInfoObjectsEqual } = require('../utils/helpers.js');
 
@@ -37,6 +36,8 @@ async function getRoomsStructure() {
     const items = await fs.promises.readdir(dir);
 
     for (const item of items) {
+      if (item === INFO_ARCHIVE_DIR) continue;
+
       const fullPath = path.join(dir, item);
       const stat = await fs.promises.stat(fullPath);
 
@@ -162,16 +163,15 @@ async function writeInfo(roomPath, info) {
 
   if (infoOld && areInfoObjectsEqual(infoOld, info)) return;
 
-  //TODO Come up with a method to store the archive
-  // if (infoOld) {
-  //   // TODO analyze what will happen if multiple clients try to simultaneously save changes to info.json
-  //   const extname = path.extname(INFO_FILE);
-  //   const basename = path.basename(INFO_FILE, extname);
-  //   const archiveFileName = `${basename}.${timestamp}${extname}`;
-  //   const pathToArchiveFile = path.join(archiveDir, archiveFileName);
-  //   await fs.promises.mkdir(archiveDir, { recursive: true });
-  //   await fs.promises.copyFile(pathToFile, pathToArchiveFile);
-  // }
+  if (infoOld) {
+    // TODO analyze what will happen if multiple clients try to simultaneously save changes to info.json
+    const extname = path.extname(INFO_FILE);
+    const basename = path.basename(INFO_FILE, extname);
+    const archiveFileName = `${basename}.${timestamp}${extname}`;
+    const pathToArchiveFile = path.join(archiveDir, archiveFileName);
+    await fs.promises.mkdir(archiveDir, { recursive: true });
+    await fs.promises.copyFile(pathToFile, pathToArchiveFile);
+  }
 
   await writeFileAtomic(pathToFile, JSON.stringify(info, null, 4));
 }
