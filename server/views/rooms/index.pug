@@ -24,5 +24,7 @@ block content
     ul.rooms__root
       +renderTree(rooms)
 
-    //- pre= JSON.stringify(rooms, null, 2)
+  details
+    summary rooms
+    pre= JSON.stringify(rooms, null, 2)
 

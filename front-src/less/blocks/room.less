@@ -1,6 +1,14 @@
 .room__image-list {
 	display: flex;
 	flex-wrap: wrap;
+	justify-content: safe;
+	justify-items: center;
+}
+
+.room__image-list::after {
+	content: "";
+	flex-shrink: 1;
+	flex-grow: 1;
 }
 
 .room__image {

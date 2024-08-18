@@ -4,12 +4,57 @@ const path = require('path');
 
 const writeFileAtomic = require('write-file-atomic');
 
-
 const DB_DIR = config.dbDir;
 const ROOMS_DIR = path.join(DB_DIR, 'ROOMS');
 const ROOMS_CACHE_DIR = path.join(DB_DIR, 'CACHE/ROOMS');
 const INFO_FILE = 'info.json';
 const INFO_ARCHIVE_DIR = 'ARCHIVE';
+
+const PARAMS = {
+  hasInternet: "Наличие интернета",
+  hasProjector: "Наличие проектора",
+  hasComputer: "Наличие компьютера",
+  hasInteractiveWhiteboard: "Наличие интерактивной доски",
+  hasLargeScreenTV: "Наличие телевизора с большим экраном"
+};
+
+const ISSUES = {
+  wiresOnFloor: "Провода валяются на полу",
+  hangingWires: "Провода свисают с потолка петлями",
+  imageMismatch: "Проецируемое изображение не соответствует экрану",
+  ceilingDirt: "На потолке грязь",
+  wallDirt: "На стенах грязь",
+  dirtyTapeResidues: "Грязные остатки скотча на доске объявлений",
+  ceilingPlasterChips: "На потолке сколы штукатурки",
+  plasterCrumbling: "Местами осыпается штукатурка",
+  dimProjectedImage: "Проецируемое изображение тусклое",
+  noisyProjector: "Проектор при работе сильно шумит",
+  excessiveCableLength: "Провода избыточной длины, требуется кабель-менеджмент",
+  oldProjectorAge: "Проектор возрастом более 10 лет",
+  unusedEquipmentInAuditorium: "Наличие неиспользуемого оборудования в аудитории",
+  unusedEquipmentInLab: "Наличие неиспользуемого оборудования в препараторской",
+  emptyEquipmentBoxes: "Наличие пустых коробок от оборудования",
+  boardHingeBlocked: "Боковые створка аудиторной доски фиксируется кабель-каналом кондиционера",
+  ceilingStains: "Потеки на панелях подвесного потолка",
+  missingCeilingPanels: "Отсутствуют панели подвесного потолка",
+  brokenCeilingPanel: "Сломана панель подвесного потолка",
+  saggingCeilingFrame: "Провисает профиль каркаса подвесного потолка",
+  rustyCeilingFrame: "Ржавый профиль каркаса подвесного потолка",
+  rustyLampInCeiling: "Ржавая лампа в подвесном потолке",
+  protectiveFilmResidue: "Остатки защитной пленки на раме пластикового окна",
+  ceilingSpitStains: "Плевки на потолке",
+  bubbledTabletop: "Вспученная столешница",
+  rustyPipeInAuditorium: "Ржавая труба в аудитории"
+};
+
+function makeInfo() {
+  return {
+    id: null,
+    comment: '',
+    params: [],
+    issues: []
+  }
+}
 
 const { getCurrentDateTimeFormatted } = require('../utils/helpers.js');
 const { areInfoObjectsEqual } = require('../utils/helpers.js');
@@ -27,27 +72,25 @@ async function getRoomsStructure() {
    * @returns {Promise<Object>} - Возвращает объект, представляющий структуру каталогов.
    */
   async function loadDirectoryStructure(dir) {
+    const roomPath = preparePath(dir);
+    const { info, files } = await getRoom(roomPath);
+
     const result = {
       name: path.basename(dir),
-      path: preparePath(dir),
+      path: roomPath,
+      info,
+      files,
       children: []
     };
 
-    const items = await fs.promises.readdir(dir);
+    const entries = await fs.promises.readdir(dir, { withFileTypes: true });
 
-    for (const item of items) {
-      if (item === INFO_ARCHIVE_DIR) continue;
+    for (const entry of entries) {
+      if (entry.name === INFO_ARCHIVE_DIR || entry.name === INFO_FILE) continue;
 
-      const fullPath = path.join(dir, item);
-      const stat = await fs.promises.stat(fullPath);
-
-      if (stat.isDirectory()) {
-        // Если элемент - каталог, рекурсивно загружаем его структуру
+      if (entry.isDirectory()) {
+        const fullPath = path.join(dir, entry.name);
         result.children.push(await loadDirectoryStructure(fullPath));
-      } else {
-        // Если элемент - файл, просто добавляем его в список
-        if (!result.files) result.files = [];
-        result.files.push({ name: item, path: preparePath(fullPath) });
       }
     }
 
@@ -129,16 +172,16 @@ async function getRoom(room) {
   const files = (
     await fs.promises.readdir(pathToRoom, { withFileTypes: true })
   )
-    .filter((file) => !file.isDirectory())
+    .filter((file) => !file.isDirectory() && file.name !== INFO_FILE)
     .map((el) => el.name);
 
   let info;
   try {
-    info = JSON.parse(await fs.promises.readFile(pathToInfo, 'utf8'));
+    info = { ...makeInfo(), ...JSON.parse(await fs.promises.readFile(pathToInfo, 'utf8')) };
   } catch (err) {
     if (err.code !== 'ENOENT') throw err;
 
-    info = null;
+    info = makeInfo();
   }
 
   return { path: room, info, files };
@@ -146,8 +189,10 @@ async function getRoom(room) {
 }
 
 async function writeInfo(roomPath, info) {
+  const infoToSave = Object.assign(makeInfo(), info);
+
   const timestamp = getCurrentDateTimeFormatted();
-  info.date = timestamp;
+  infoToSave.date = timestamp;
 
   const dir = path.join(ROOMS_DIR, roomPath);
   const archiveDir = path.join(dir, INFO_ARCHIVE_DIR);
@@ -161,7 +206,7 @@ async function writeInfo(roomPath, info) {
     if (err.code !== 'ENOENT') throw err;
   }
 
-  if (infoOld && areInfoObjectsEqual(infoOld, info)) return;
+  if (infoOld && areInfoObjectsEqual(infoOld, infoToSave)) return;
 
   if (infoOld) {
     // TODO analyze what will happen if multiple clients try to simultaneously save changes to info.json
@@ -173,12 +218,14 @@ async function writeInfo(roomPath, info) {
     await fs.promises.copyFile(pathToFile, pathToArchiveFile);
   }
 
-  await writeFileAtomic(pathToFile, JSON.stringify(info, null, 4));
+  await writeFileAtomic(pathToFile, JSON.stringify(infoToSave, null, 4));
 }
 
 
 module.exports = {
   ROOMS_DIR,
+  PARAMS,
+  ISSUES,
   getRoomsStructure,
   getPathToPreviewFile,
   getPathToFile,

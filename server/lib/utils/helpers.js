@@ -1,3 +1,5 @@
+const assert = require('assert');
+
 function getCurrentDateTimeFormatted() {
   const now = new Date();
 
@@ -19,36 +21,47 @@ function getCurrentDateTimeFormatted() {
  * @returns {boolean} True if the objects are equal, false otherwise.
  */
 function areInfoObjectsEqual(info1, info2) {
-  // Check if both are objects and not null
-  if (
-    typeof info1 !== 'object' ||
-    info1 === null ||
-    typeof info2 !== 'object' ||
-    info2 === null
-  ) {
-    return false;
+  const o1 = structuredClone(info1);
+  const o2 = structuredClone(info2);
+
+  delete o1.date;
+  delete o2.date;
+
+  const isEqual = deepEqual(o1, o2);
+
+  return isEqual;
+}
+
+function deepClone(obj) {
+  if (obj === null || typeof obj !== 'object') {
+    return obj;
   }
 
-  // Get keys of both objects
-  const keys1 = Object.keys(info1).filter((key) => key !== 'date');
-  const keys2 = Object.keys(info2).filter((key) => key !== 'date');
-
-  // Compare number of keys
-  if (keys1.length !== keys2.length) {
-    return false;
+  if (Array.isArray(obj)) {
+    return obj.map(item => deepClone(item));
   }
 
-  // Check each key and value
-  for (const key of keys1) {
-    if (!keys2.includes(key) || info1[key] !== info2[key]) {
-      return false;
+  const clonedObj = {};
+  for (const key in obj) {
+    if (obj.hasOwnProperty(key)) {
+      clonedObj[key] = deepClone(obj[key]);
     }
   }
+  return clonedObj;
+}
 
+function deepEqual(o1, o2) {
+  try {
+    assert.deepStrictEqual(o1, o2);
+  } catch (err) {
+    return false;
+  }
   return true;
 }
 
 module.exports = {
   getCurrentDateTimeFormatted,
-  areInfoObjectsEqual
+  areInfoObjectsEqual,
+  deepClone,
+  deepEqual
 }

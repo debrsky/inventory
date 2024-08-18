@@ -64,8 +64,8 @@ async function getItems() {
     if (res.status === 'rejected' && res.reason.code !== 'ENOENT')
       throw res.reason;
     if (res.status === 'rejected') return { id: ids[idx] };
-    // res.status === "fulfilled"
 
+    // res.status === "fulfilled"
     const info = JSON.parse(res.value);
     const tags = (info.comment ?? '').match(/#\S+/g) ?? [];
 
@@ -73,6 +73,13 @@ async function getItems() {
   });
 
   return items;
+}
+
+async function getItemsByRoom(room) {
+  const items = (await getItems()).filter(item => item.place === room);
+  const itemsFull = await Promise.all(items.map((item) => getItem(item.id)));
+  // console.log({ room, items });
+  return itemsFull;
 }
 
 /**
@@ -346,6 +353,7 @@ module.exports = {
   ITEMS_DIR,
   isIdValid,
   getItems,
+  getItemsByRoom,
   getItem,
   getPathToFile,
   getPathToPreviewFile,

@@ -28,20 +28,21 @@ router.get(['/:path', '/:path/edit'], async (req, res, next) => {
   const mode = req.url.endsWith('/edit') ? 'edit' : 'view';
 
   const roomPath = req.params.path;
-  let room;
+  let room, items;
   try {
     room = await db.rooms.getRoom(roomPath);
+    items = await db.items.getItemsByRoom(room.info.id);
   } catch (err) {
     if (err.code === 'ENOENT') return next();
     return next(err);
   }
 
-  res.render('rooms/room', { room, mode });
+  const issues = db.rooms.ISSUES;
+  const params = db.rooms.PARAMS;
+  res.render('rooms/room', { room, mode, items, params, issues });
 });
 
 router.post('/:path', async (req, res, next) => {
-  console.log({ body: req.body });
-
   const roomPath = req.params.path;
   let room;
   try {
@@ -51,9 +52,7 @@ router.post('/:path', async (req, res, next) => {
     return next(err);
   }
 
-  const info = room.info ?? {};
-  Object.assign(info, req.body);
-  console.log({ info });
+  const info = req.body;
 
   try {
     await db.rooms.writeInfo(roomPath, info);

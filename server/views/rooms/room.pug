@@ -1,7 +1,7 @@
 extends ../layout
 
 block content
-  main(style="padding-inline: 2ch;")
+  main
     h2.room__title= room.path
 
     article.tools-panel 
@@ -20,16 +20,109 @@ block content
 
     if mode === 'edit'
       form.form(
+        style="margin-inline: 1ch;",
         action=`${baseUrl}/${encodeURIComponent(room.path)}`,
-        method="post"
+        method="post",
+        name="form"
       ) 
-        .control 
-          label.control__container
-            span.control__title comment
-            textarea.control__textarea(name="comment")= room.info ? room.info.comment : ''
+        section.control-group
+          h3.h3 Помещение
+          .control 
+            label.control__container
+              span.control__title id
+              input.control__text(type="text", name="id", value=room.info.id)
+          .control 
+            label.control__container
+              span.control__title comment
+              textarea.control__textarea(name="comment")= room.info ? room.info.comment : ''
+
+        section.control-group
+          h3.h3 Параметры помещения
+          each [param, title] of Object.entries(params)
+            .control
+              label.control__container
+                input.control__checkbox(
+                  type="checkbox", 
+                  name="params[]", 
+                  value=param, 
+                  checked=room.info.params.includes(param)
+                )
+                span.control__title= title
+
+        section.control-group
+          h3.h3 Замечания
+          each [issue, title] of Object.entries(issues)
+            .control
+              label.control__container
+                input.control__checkbox(
+                  type="checkbox", 
+                  name="issues[]", 
+                  value=issue, 
+                  checked=room.info.issues.includes(issue)
+                )
+                span.control__title= title
+
         .control 
           button(
             type="submit"
           ) Отправить          
 
-    pre= JSON.stringify(room, null, 2)
+    else 
+      article 
+        section
+          h3.h3 Помещение
+          table.params-list
+            tbody 
+              tr
+                td id
+                td= room.info.id
+              tr
+                td comment
+                td= room.info.comment
+
+        section
+          h3.h3 Параметры помещения
+          ul
+            each param of room.info.params
+              li= params[param]
+
+        section 
+          h3.h3 Замечания
+          ul
+            each issue of room.info.issues
+              li= issues[issue]
+        
+        section 
+          h3.h3 Оборудование
+          table.table
+            thead 
+              tr 
+                th id
+                th type
+                th brand 
+                th model
+            tbody 
+              each item of items
+                tr 
+                  td: a(href=`/inventory/items/${item.id}` target="_blank")= item.id
+                  td= item.info.type
+                  td= item.info.brand 
+                  td= item.info.model
+
+
+          details
+            summary(style="cursor: pointer;") items
+            pre(style="width: 100%; overflow-x: auto;")= JSON.stringify(items, null, 2)
+
+    details
+      summary(style="cursor: pointer;") info
+      pre(style="width: 100%; overflow-x: auto;")= JSON.stringify(room, null, 2)
+
+  //- script.
+  //-   const form = document.forms['form'];
+  //-   form.addEventListener('submit', (event)=>{
+  //-     event.preventDefault();
+  //-     const formData = new FormData(event.target);
+  //-     console.log({formData});
+  //-   })
+    
