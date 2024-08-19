@@ -31,7 +31,7 @@ block content
       each item in items 
         tr(data-place=item.place, data-tags=Array.isArray(item.tags) ? item.tags.join(' ') : item.tags)
           td(style="word-break: normal")
-            a(href=`${baseUrl}/items/${item.id}`)= item.id
+            a(href=`${baseUrl}/${item.id}`)= item.id
           td= item.type
           td= item.brand
           td= item.model

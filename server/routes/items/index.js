@@ -25,7 +25,7 @@ router.get('/', async function (req, res, next) {
     const places = await db.items.getPlaces();
     const tags = await db.items.getTags();
 
-    res.render('inventory/index', {
+    res.render('items/index', {
       title: 'Инвентаризация',
       items,
       places,
@@ -45,7 +45,7 @@ router.post('/', async function (req, res, next) {
   }
 });
 
-router.get(['/items/:id', '/items/:id/edit'], async function (req, res, next) {
+router.get(['/:id', '/:id/edit'], async function (req, res, next) {
   const id = req.params.id;
   if (!db.items.isIdValid(id)) return next();
 
@@ -53,7 +53,7 @@ router.get(['/items/:id', '/items/:id/edit'], async function (req, res, next) {
 
   try {
     const item = await db.items.getItem(id);
-    res.render('inventory/item', {
+    res.render('items/item', {
       title: `${item.id} Инвентаризация`,
       mode,
       item
@@ -64,7 +64,7 @@ router.get(['/items/:id', '/items/:id/edit'], async function (req, res, next) {
   }
 });
 
-router.post('/items/:id', async function (req, res, next) {
+router.post('/:id', async function (req, res, next) {
   const id = req.params.id;
   if (!db.items.isIdValid(id)) return next();
 
@@ -127,7 +127,7 @@ router.post('/items/:id', async function (req, res, next) {
   req.pipe(bb);
 });
 
-router.get('/items/:id/:file', async function (req, res, next) {
+router.get('/:id/:file', async function (req, res, next) {
   try {
     const id = req.params.id;
     if (!db.items.isIdValid(id)) return next();
@@ -154,7 +154,7 @@ router.get('/items/:id/:file', async function (req, res, next) {
   }
 });
 
-router.get('/items/:id/preview/:file', async function (req, res, next) {
+router.get('/:id/preview/:file', async function (req, res, next) {
   const id = req.params.id;
   if (!db.items.isIdValid(id)) return next();
 

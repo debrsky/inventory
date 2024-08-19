@@ -8,10 +8,10 @@ block content
 
   if mode === 'edit'
     article.tools-panel 
-      a.btn-back(href=`${baseUrl}/items/${item.id}`)
+      a.btn-back(href=`${baseUrl}/${item.id}`)
 
     form.form.item(
-      action=`${baseUrl}/items/${item.id}`,
+      action=`${baseUrl}/${item.id}`,
       method="post",
       enctype="multipart/form-data"
     )
@@ -83,9 +83,9 @@ block content
           each picture in pictures 
             li
               figure(style="margin: 0")
-                a(href=`${baseUrl}/items/${item.id}/${picture}`)
+                a(href=`${baseUrl}/${item.id}/${picture}`)
                   img(
-                    src=`${baseUrl}/items/${item.id}/preview/${picture}`,
+                    src=`${baseUrl}/${item.id}/preview/${picture}`,
                     width="100"
                   )
                 figcaption.control
@@ -122,7 +122,7 @@ block content
 
   else
     article.tools-panel 
-      a.btn-edit(href=`${baseUrl}/items/${item.id}/edit`)
+      a.btn-edit(href=`${baseUrl}/${item.id}/edit`)
     article.item-card 
       table.params-list 
         tbody
@@ -155,9 +155,9 @@ block content
     .item
       ul.item__pictures 
         each picture in pictures 
-          li: a(href=`${baseUrl}/items/${item.id}/${picture}`)
-            img(src=`${baseUrl}/items/${item.id}/preview/${picture}`, width="100")
+          li: a(href=`${baseUrl}/${item.id}/${picture}`)
+            img(src=`${baseUrl}/${item.id}/preview/${picture}`, width="100")
 
       ul.item__docs 
         each doc of docs
-          li: a(href=`${baseUrl}/items/${item.id}/${doc}`)= doc
+          li: a(href=`${baseUrl}/${item.id}/${doc}`)= doc

@@ -16,7 +16,7 @@ const { setAuthorize, isLoggedIn } = require('./lib/auth.js');
 
 const indexRouter = require('./routes/index');
 const usersRouter = require('./routes/users');
-const inventoryRouter = require('./routes/inventory');
+const itemsRouter = require('./routes/items');
 const roomsRouter = require('./routes/rooms');
 
 const app = express();
@@ -74,7 +74,7 @@ app.use(
 
 app.use('/', indexRouter);
 app.use('/users', usersRouter);
-app.use('/inventory', inventoryRouter);
+app.use('/items', itemsRouter);
 app.use('/rooms', roomsRouter);
 
 app.get('/db.zip', async function (req, res, next) {
