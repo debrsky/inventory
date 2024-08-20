@@ -13,4 +13,14 @@
 .menu__item {
 	border: 1px solid grey;
 	padding: 1ch;
+	position: relative;
+}
+
+.menu__link::before {
+	content: "";
+	position: absolute;
+	top: 0;
+	bottom: 0;
+	left: 0;
+	right: 0;
 }
