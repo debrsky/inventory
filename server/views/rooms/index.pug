@@ -3,8 +3,12 @@ extends ../layout
 mixin renderTree(node)
   li.rooms__node
     .rooms__node-name 
-      a(href=`${baseUrl}/${encodeURIComponent(node.path)}`).rooms__node-link= node.name + (node.files && node.files.length ? ' 🗃️' : '')
-
+      a(
+        href=`${baseUrl}/${encodeURIComponent(node.path)}`
+      ).rooms__node-link
+        | #{node.name}
+        sup(style="font-size: 50%")= node.info.id
+        | #{node.files && node.files.length ? ' 🗃️' : ''} 
 
     //- if node.files && node.files.length
     //-   ul.rooms__file-list 
