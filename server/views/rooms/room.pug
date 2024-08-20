@@ -104,7 +104,7 @@ block content
             tbody 
               each item of items
                 tr 
-                  td: a(href=`/inventory/items/${item.id}` target="_blank")= item.id
+                  td: a(href=`/items/${item.id}` target="_blank")= item.id
                   td= item.info.type
                   td= item.info.brand 
                   td= item.info.model
