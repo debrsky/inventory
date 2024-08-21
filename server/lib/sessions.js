@@ -19,7 +19,7 @@ function sessions() {
     secret: SESSION_SECRET,
     resave: true,
     saveUninitialized: true,
-    cookie: { secure: 'auto' }
+    cookie: { secure: 'auto', sameSite: 'Lax' }
   };
   return session(sessionOptions);
 }
