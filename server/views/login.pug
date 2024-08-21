@@ -101,7 +101,7 @@ html.page(lang='ru')
 
           if (res.ok) {
             const json = await res.json();
-            return window.location.assign(json.redirect ?? '/');
+            return window.location.assign(json?.redirect ?? '/');
           }
 
           form.classList.add('form--invalid');
