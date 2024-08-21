@@ -99,7 +99,10 @@ html.page(lang='ru')
             body: new URLSearchParams(new FormData(form)),
           });
 
-          if (res.ok) return window.location.assign('/');
+          if (res.ok) {
+            const json = await res.json();
+            return window.location.assign(json.redirect ?? '/');
+          }
 
           form.classList.add('form--invalid');
 

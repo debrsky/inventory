@@ -30,9 +30,12 @@ function setAuthorize(app) {
 
       req.session.save((err) => {
         if (err) return next(err);
-        if (req.xhr) return res.status(200).end();
 
-        res.redirect('/');
+        const redirect = req.query.redirect;
+
+        if (req.xhr) return res.json({ redirect });
+
+        res.redirect(redirect);
       });
     };
 
@@ -81,7 +84,7 @@ function isLoggedIn(req, res, next) {
   if (req.isAuthenticated()) return next();
   if (req.xhr) return next(createError(403));
 
-  res.redirect('/login');
+  res.redirect(`/login/?redirect=${encodeURIComponent(req.originalUrl)}`);
 }
 
 module.exports = { setAuthorize, isLoggedIn };
