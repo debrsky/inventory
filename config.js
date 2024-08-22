@@ -5,5 +5,5 @@ module.exports = {
   storage: 'storage',
   dbDir: 'storage/DB',
   downloadDir: 'storage/download',
-  pictureFileTypes: ['jpg', 'png', 'webp', 'avif']
+  pictureFileTypes: ['jpg', 'jpeg', 'png', 'webp', 'avif']
 };
