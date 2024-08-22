@@ -221,7 +221,6 @@ async function writeInfo(roomPath, info) {
   await writeFileAtomic(pathToFile, JSON.stringify(infoToSave, null, 4));
 }
 
-
 module.exports = {
   ROOMS_DIR,
   PARAMS,

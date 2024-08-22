@@ -10,31 +10,43 @@ block content
       else
         a.btn-edit(href=`${baseUrl}/${encodeURIComponent(room.path)}/edit`)
 
-    ul.room__image-list
-      - const images = room.files.filter(file => PICTURE_FILE_TYPES.some(ext => file.endsWith(`.${ext}`)));
-      each image in images 
-        li.room__image 
-          - const imgUrl = image;
-          a(href=`${baseUrl}/${encodeURIComponent(room.path)}/${image}`, target="_blank")
-            img.room__preview-img(src=`${baseUrl}/preview/${encodeURIComponent(room.path)}/${image}`, loading="lazy", alt="", width="150", height="150")
-
     if mode === 'edit'
       form.form(
         style="margin-inline: 1ch;",
         action=`${baseUrl}/${encodeURIComponent(room.path)}`,
         method="post",
-        name="form"
+        name="form",
+        enctype="multipart/form-data"
       ) 
+        
+        section.control-group
+          h3.h3 Изображения
+          p Изображения, отмеченные чекбоксом, будут удалены
+
+          ul.room__image-list.room__image-list--edit
+            - const images = room.files.filter(file => PICTURE_FILE_TYPES.some(ext => file.endsWith(`.${ext}`)));
+            each image in images 
+              li.room__image.room__image--edit
+                input(type="checkbox", name="imagestodelete[]", value=image).room__image-checkbox
+                a
+                  img.room__preview-img(src=`${baseUrl}/preview/${encodeURIComponent(room.path)}/${image}`, loading="lazy", alt="", width="150", height="150")
+
+          h4.h4 Прикрепить изображения
+            .control 
+              label.control__container
+                - const accept = PICTURE_FILE_TYPES.map(ext => `.${ext}`).join(', ');
+                input.control__file(type="file", name="image", accept=accept, multiple)
+
         section.control-group
           h3.h3 Помещение
           .control 
             label.control__container
               span.control__title id
-              input.control__text(type="text", name="id", value=room.info.id)
+              input.control__text(type="text", name="info[id]", value=room.info.id)
           .control 
             label.control__container
               span.control__title comment
-              textarea.control__textarea(name="comment")= room.info ? room.info.comment : ''
+              textarea.control__textarea(name="info[comment]")= room.info ? room.info.comment : ''
 
         section.control-group
           h3.h3 Параметры помещения
@@ -43,7 +55,7 @@ block content
               label.control__container
                 input.control__checkbox(
                   type="checkbox", 
-                  name="params[]", 
+                  name="info[params][]", 
                   value=param, 
                   checked=room.info.params.includes(param)
                 )
@@ -56,19 +68,49 @@ block content
               label.control__container
                 input.control__checkbox(
                   type="checkbox", 
-                  name="issues[]", 
+                  name="info[issues][]", 
                   value=issue, 
                   checked=room.info.issues.includes(issue)
                 )
                 span.control__title= title
 
-        .control 
-          button(
-            type="submit"
-          ) Отправить          
+        section 
+          h3.h3 Прикрепленные файлы
+          p Отмеченные файлы будут удалены
+          ul
+            each file of room.files.filter(file => !PICTURE_FILE_TYPES.some(ext => file.endsWith(`.${ext}`)))
+              li
+                .control
+                  label.control__container
+                    a.control__title(href=`${baseUrl}/${encodeURIComponent(room.path)}/${file}`, target="_blank")= file
+                    input.control__checkbox(
+                      type="checkbox", 
+                      name="filestodelete[]", 
+                      value=file 
+                    )
+
+        section.control-group
+          h3.h3 Прикрепить файлы
+            .control 
+              label.control__container
+                input.control__file(type="file", name="file", multiple)
+
+        section.control-group
+          h3.h3 Отправить форму
+          .control 
+            button(
+              type="submit"
+            ) Отправить          
 
     else 
       article 
+        ul.room__image-list
+          - const images = room.files.filter(file => PICTURE_FILE_TYPES.some(ext => file.endsWith(`.${ext}`)));
+          each image in images 
+            li.room__image 
+              a(href=`${baseUrl}/${encodeURIComponent(room.path)}/${image}`, target="_blank")
+                img.room__preview-img(src=`${baseUrl}/preview/${encodeURIComponent(room.path)}/${image}`, loading="lazy", alt="", width="150", height="150")
+
         section
           h3.h3 Помещение
           table.params-list
@@ -92,6 +134,13 @@ block content
             each issue of room.info.issues
               li= issues[issue]
         
+        section 
+          h3.h3 Прикрепленные файлы
+          ul
+            each file of room.files.filter(file => !PICTURE_FILE_TYPES.some(ext => file.endsWith(`.${ext}`)))
+              li
+                a(href=`${baseUrl}/${encodeURIComponent(room.path)}/${file}`, target="_blank")= file
+
         section 
           h3.h3 Оборудование
           table.table
