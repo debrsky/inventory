@@ -1,13 +1,12 @@
 doctype html
-html.page(lang='ru')
+html(lang='ru')
   head
     meta(charset='utf-8')
     meta(name='viewport', content='width=device-width, initial-scale=1')
     title= title
-    link(rel='stylesheet', href='/vendor/sanitize.css')
-    link(rel='stylesheet', href='/css/style.css')
     style.
       body {
+        min-height: 100vh;
         display: flex;
         flex-direction: column;
       }
@@ -65,7 +64,7 @@ html.page(lang='ru')
         }
       }
 
-  body.page__body
+  body
     main.center-content
       form.form.form--login(name='form', method='post')
         if message
