@@ -1,11 +1,13 @@
 const config = require('../../../config.js');
+const STORAGE = process.env.STORAGE;
 const fs = require('fs');
 const path = require('path');
 
 const writeFileAtomic = require('write-file-atomic');
 
-const DB_DIR = config.dbDir;
+const DB_DIR = path.join(STORAGE, 'DB');
 const ROOMS_DIR = path.join(DB_DIR, 'ROOMS');
+fs.mkdirSync(ROOMS_DIR, { recursive: true });
 const ROOMS_CACHE_DIR = path.join(DB_DIR, 'CACHE/ROOMS');
 const INFO_FILE = 'info.json';
 const INFO_ARCHIVE_DIR = 'ARCHIVE';
@@ -60,6 +62,7 @@ const { getCurrentDateTimeFormatted } = require('../utils/helpers.js');
 const { areInfoObjectsEqual } = require('../utils/helpers.js');
 
 const resize = require('../utils/ffmpeg.js');
+const { dir } = require('console');
 
 async function getRoomsStructure() {
   function preparePath(path) {

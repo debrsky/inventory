@@ -1,4 +1,5 @@
 const config = require('../../../config.js');
+const STORAGE = process.env.STORAGE;
 const fs = require('fs');
 const path = require('path');
 const os = require('os');
@@ -11,7 +12,7 @@ const { areInfoObjectsEqual } = require('../utils/helpers.js');
 const resize = require('../utils/ffmpeg.js');
 const { parseReport } = require('../utils/aida64.js');
 
-const DB_DIR = config.dbDir;
+const DB_DIR = path.join(STORAGE, 'DB');
 const CACHE_DIR = path.join(DB_DIR, 'CACHE');
 const ITEMS_DIR = path.join(DB_DIR, 'ITEMS');
 const INFO_FILE = 'info.json';

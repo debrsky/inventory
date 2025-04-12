@@ -1,4 +1,5 @@
 const config = require('../config.js');
+const STORAGE = process.env.STORAGE;
 
 const createError = require('http-errors');
 const express = require('express');
@@ -64,7 +65,7 @@ app.use(express.static(config.public));
 
 app.use(isLoggedIn);
 
-const downloadDir = config.downloadDir;
+const downloadDir = path.join(STORAGE, 'download');
 fs.mkdirSync(downloadDir, { recursive: true });
 app.use(
   '/download',

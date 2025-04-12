@@ -1,5 +1,6 @@
 const config = require('../../config.js');
 const SESSION_SECRET = process.env.SESSION_SECRET;
+const STORAGE = process.env.STORAGE;
 
 const fs = require('fs');
 const path = require('path');
@@ -7,7 +8,7 @@ const session = require('express-session');
 const FileStore = require('session-file-store')(session);
 
 function sessions() {
-  const sessionStorage = path.join(config.rootDir, config.storage, 'sessions');
+  const sessionStorage = path.join(STORAGE, 'sessions');
   fs.mkdirSync(sessionStorage, { recursive: true });
   const fileStoreOptions = {
     path: sessionStorage,

@@ -1,4 +1,6 @@
 const config = require('../../config.js');
+const STORAGE = process.env.STORAGE;
+
 const fs = require('fs').promises;
 const writeFileAtomic = require('write-file-atomic');
 const path = require('path');
@@ -9,7 +11,7 @@ const KEYLEN = 32;
 const DIGEST = 'sha512';
 const ENCODING = 'base64url';
 
-const usersFile = path.join(config.rootDir, config.storage, 'users.json');
+const usersFile = path.join(STORAGE, 'users.json');
 
 /**
  * Retrieves a user by their unique identifier.
