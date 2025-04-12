@@ -6,12 +6,14 @@ const cheerio = require('cheerio');
  * Парсит отчет AIDA64 и извлекает информацию о системе.
  *
  * @param {string} pathToReportFile - Путь к файлу отчета AIDA64.
- * @returns {Promise<Object>} Объект с информацией о системе, содержащий:
- *   @returns {string} os - Информация об операционной системе.
- *   @returns {string} cpu - Тип центрального процессора.
- *   @returns {string} ram - Информация о системной памяти.
- *   @returns {string} mb - Информация о системной плате.
- *   @returns {Array<string>} drives - Массив строк с информацией о дисковых накопителях.
+ * @returns {Promise<Object>} Объект с информацией о системе:
+ *   @property {string} os - Информация об операционной системе.
+ *   @property {string} cpu - Тип центрального процессора.
+ *   @property {string} ram - Информация о системной памяти.
+ *   @property {string} mb - Информация о системной плате.
+ *   @property {string} ip - Первичный адрес IP.
+ *   @property {string} mac - Первичный адрес MAC.
+ *   @property {Array<string>} drives - Массив строк с информацией о дисковых накопителях.
  * @throws {Error} В случае возникновения ошибки при чтении или парсинге файла.
  */
 async function parseReport(pathToReportFile) {
@@ -29,6 +31,8 @@ async function parseReport(pathToReportFile) {
     .find('td:contains("Системная память") + td')
     .text()
     .trim();
+  const ip = summary.find('td:contains("Первичный адрес IP") + td').text().trim();
+  const mac = summary.find('td:contains("Первичный адрес MAC") + td').text().trim();
 
   const drives = [];
   summary.find('td:contains("Дисковый накопитель") + td').each((i, elem) => {
@@ -42,7 +46,7 @@ async function parseReport(pathToReportFile) {
 
   const cpuid = $('table:has(a[name="cpuid"]) + table td:contains("Имя ЦП CPUID") + td').text().trim();
 
-  const result = { os, cpu, cpuid, ram, mb, drives };
+  const result = { os, cpu, cpuid, ram, mb, ip, mac, drives };
 
   return result;
 }
