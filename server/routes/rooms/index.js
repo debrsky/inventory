@@ -11,7 +11,7 @@ const tempdir = os.tmpdir();
 const multer = require('multer');
 // https://github.com/expressjs/multer/issues/1104
 const multerMonkeyPatch = (files) => {
-  for (key in files) {
+  for (const key in files) {
     files[key].forEach(file => {
       file.originalname = Buffer.from(file.originalname, 'latin1').toString('utf-8');
     })
